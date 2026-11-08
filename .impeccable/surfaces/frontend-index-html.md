@@ -15,7 +15,7 @@ Aufgabe: Stellung fotografieren, Ecken prüfen, scannen, korrigieren, dann Tipps
 
 THESIS: Die Figuren sind Freunde mit Namen. Jede Figur hat eine Namensplakette und einen Satz, wie sie zieht; Stockfishs Top-3-Züge kommen als Rangliste mit Bändchen 1-2-3, geschlagene Figuren werden grau. Verweigert wird der Kategorie-Standard: dunkle Oberfläche, grün-beiges Brett, Zahlenkolonnen.
 
-OWN-WORLD: Lila getönter Grund (#F1EEFF), weiße Karten mit weicher Kontur, Tinte #2A2F5A, Bändchenfarben je Figurtyp (König Butter #F5B83D, Dame Pink #FF6BA7, Turm Himmel #4BA3F5, Läufer Lila #9B7BEA, Springer Minze #2FBF8F, Bauer Koralle #FF8A5B). Runde Schrift: Fredoka für Namen und Überschriften, Nunito für alles andere. Brett in Lila/Weiß-Pastell, Figuren als glänzende Vinyl-Spielfiguren mit kleinen Gesichtern.
+OWN-WORLD: Lila getönter Grund (#F1EEFF), weiße Karten mit weicher Kontur, Tinte #2A2F5A, Bändchenfarben je Figurtyp (König Honig #E9A92A, Dame Pink #F2559A, Turm Himmel #3D93E8, Läufer Lila #8E6BE3, Springer Minze #1FAA7E, Bauer Koralle #F0784A; für Flächen mit weißer Schrift je eine dunklere Stufe mit mind. 4.5:1). Runde Schrift: Fredoka für Namen und Überschriften, Nunito für alles andere. Brett in Lila/Weiß-Pastell, Figuren als glänzende Vinyl-Spielfiguren mit kleinen Gesichtern.
 
 STORY: Ein Kind sieht sofort, welche Figur dran ist und wie sie zieht, und versteht den Tipp in Worten („Weiß steht etwas besser“). Erwachsene finden Scannen, Korrigieren, Lichess und FEN ohne Suchen.
 

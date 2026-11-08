@@ -9,7 +9,7 @@
 </script>
 
 {#key game.plateBump}
-  <section class="plate" class:bump={!!info} aria-live="polite" style:--soft={info?.soft ?? TONE_BG[game.tone]} style:--ribbon={info?.ribbon ?? "var(--ink)"}>
+  <section class="plate" class:bump={!!info} aria-live="polite" style:--soft={info?.soft ?? TONE_BG[game.tone]} style:--ribbon={info?.ribbon ?? "var(--ink)"} style:--deep={info?.deep ?? "var(--ink)"}>
     {#if info}
       <div class="portrait"><PieceArt {piece} size={64} /></div>
       <div class="text">
@@ -37,7 +37,7 @@
   .portrait { background: #fff; border-radius: 18px; padding: 4px; box-shadow: 0 0 0 3px var(--ribbon); }
   .portrait.turn { box-shadow: 0 0 0 3px var(--ink); }
   .name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 4px; }
-  .tag { font: 700 1.2rem/1.2 var(--font-display); background: var(--ribbon); color: #fff; border-radius: 99px; padding: 2px 12px; }
+  .tag { font: 700 1.2rem/1.2 var(--font-display); background: var(--deep); color: #fff; border-radius: 99px; padding: 2px 12px; }
   .turn-tag { background: var(--ink); }
   .kind { font-size: 0.8rem; font-weight: 700; color: #11664B; background: #fff; box-shadow: inset 0 0 0 2px #BDEBD9; border-radius: 99px; padding: 2px 10px; }
   .pill-note { background: var(--butter-soft); border-radius: 14px; padding: 6px 10px; }

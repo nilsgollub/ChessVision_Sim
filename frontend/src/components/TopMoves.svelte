@@ -1,6 +1,6 @@
 <script lang="ts">
   import { game } from "../lib/game.svelte";
-  import { evalWords, pieceInfo, RANK_COLORS } from "../lib/pieces";
+  import { evalWords, pieceInfo, RANK_COLORS, RANK_DEEP } from "../lib/pieces";
   import PieceArt from "./PieceArt.svelte";
 </script>
 
@@ -8,7 +8,7 @@
   <ol class="ranks" aria-label="Die besten Züge">
     {#each game.topMoves as m (m.uci)}
       {@const info = pieceInfo(m.piece)}
-      <li style:--rank={RANK_COLORS[m.rank - 1]} style:--soft={info.soft}>
+      <li style:--rank={RANK_COLORS[m.rank - 1]} style:--rank-deep={RANK_DEEP[m.rank - 1]} style:--soft={info.soft}>
         <span class="ribbon" aria-hidden="true">{m.rank}</span>
         <div class="art"><PieceArt piece={m.piece} size={46} /></div>
         <div class="what">
@@ -32,7 +32,7 @@
     box-shadow: 0 4px 14px rgba(42, 47, 90, 0.08), inset 0 0 0 2px var(--line);
   }
   .ribbon {
-    position: absolute; left: 8px; top: -4px; width: 26px; height: 34px; background: var(--rank); color: #fff;
+    position: absolute; left: 8px; top: -4px; width: 26px; height: 34px; background: var(--rank-deep); color: #fff;
     font: 600 1.05rem/30px var(--font-display); text-align: center;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
   }
@@ -42,6 +42,6 @@
   .sub { margin: 2px 0 0; font-size: 0.85rem; color: var(--ink-soft); }
   .san { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
   .go { min-height: 44px; padding: 0 14px; border-radius: 99px; border: 2px solid var(--rank); background: #fff; color: var(--ink); font-weight: 700; }
-  .go:not(:disabled):hover { background: var(--rank); color: #fff; }
+  .go:not(:disabled):hover { background: var(--rank-deep); border-color: var(--rank-deep); color: #fff; }
   .empty { margin: 0; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.4; }
 </style>

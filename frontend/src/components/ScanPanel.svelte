@@ -131,10 +131,10 @@
   .stage { position: relative; width: 100%; border-radius: 18px; overflow: hidden; touch-action: none; background: var(--ink); }
   .stage img { width: 100%; height: 100%; display: block; object-fit: fill; user-select: none; -webkit-user-drag: none; }
   .overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .overlay polygon { fill: rgba(255, 107, 167, 0.16); stroke: var(--pink); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .overlay polygon { fill: color-mix(in srgb, var(--pink) 16%, transparent); stroke: var(--pink); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
   .pin {
     position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid #fff;
-    background: var(--pink); color: #fff; box-shadow: 0 3px 10px rgba(42, 47, 90, 0.35); padding: 0; touch-action: none; cursor: grab;
+    background: var(--pink-deep); color: #fff; box-shadow: 0 3px 10px rgba(42, 47, 90, 0.35); padding: 0; touch-action: none; cursor: grab;
   }
   .pin span { font: 600 0.8rem var(--font-display); }
   .pin:active { cursor: grabbing; transform: scale(1.12); }
