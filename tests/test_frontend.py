@@ -283,3 +283,22 @@ def test_hint_shows_three_ranked_moves_and_ai_plays(page):
     page.click("text=KI zieht")
     page.wait_for_function("prev => window.brettfreunde.getFen() !== prev", arg=before)
     assert fen(page).split()[1] == "b"
+
+
+def test_sounds_follow_moves_and_can_be_switched_off(page):
+    log = "window.brettfreunde.soundLog"
+    move(page, "e2e4")
+    move(page, "d7d5")
+    move(page, "e4d5")
+    assert page.evaluate(log)[-3:] == ["move", "move", "capture"]
+    page.click("[data-square=d8]")
+    page.click("[data-square=d4]")  # Dame kommt nicht am Bauern d5 vorbei
+    page.wait_for_function(f"{log}.at(-1) === 'nope'")
+    page.click("[data-tab=mehr]")
+    page.click("[data-testid=sound-toggle]")
+    assert page.get_attribute("[data-testid=sound-toggle]", "aria-checked") == "false"
+    page.click("[data-tab=spielen]")
+    n = len(page.evaluate(log))
+    move(page, "d8d5")
+    assert len(page.evaluate(log)) == n
+    page.evaluate("localStorage.removeItem('brettfreunde.sound')")
