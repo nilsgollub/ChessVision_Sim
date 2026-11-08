@@ -1,8 +1,9 @@
-import { api, type MoveInfo, type TopMove } from "./api";
+import { api, type GameSummary, type HistoryMove, type MoveInfo, type TopMove } from "./api";
 import { START_FEN, normalizeFen, parseFen, rebuildFen, squareName, squareRC, type Grid } from "./chess";
-import { pieceInfo } from "./pieces";
+import { pieceInfo, sanDe } from "./pieces";
 
-export type Tab = "spielen" | "scannen" | "korrigieren" | "mehr";
+export type Tab = "spielen" | "scannen" | "korrigieren" | "partien" | "mehr";
+export type SaveState = "idle" | "saving" | "saved" | "error";
 export type Tone = "neutral" | "busy" | "good" | "warn" | "bad";
 
 class Game {
@@ -26,6 +27,17 @@ class Game {
   /** Zähler, damit die Figurenplakette bei jeder neuen Auswahl hüpft. */
   plateBump = $state(0);
 
+  // Gespeicherte Partie: Startstellung + Zugliste, auf dem Server abgelegt.
+  gameId = $state<string | null>(null);
+  gameName = $state("");
+  startFen = $state(START_FEN);
+  history = $state<HistoryMove[]>([]);
+  saveState = $state<SaveState>("idle");
+  saveError = $state("");
+  savedGames = $state<GameSummary[]>([]);
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private saving: Promise<void> = Promise.resolve();
+
   parsed = $derived(parseFen(this.fen));
   grid: Grid = $derived(this.parsed.grid);
   turn = $derived(this.parsed.turn);
@@ -41,6 +53,10 @@ class Game {
 
   /** Neue FEN vom Backend übernehmen (vollständig, inkl. Rochade, En passant, Zähler). */
   loadFen(fen: string, move: MoveInfo | null = null) {
+    if (move) {
+      this.history.push({ uci: move.uci, san: move.san, piece: move.piece, fen: normalizeFen(fen) });
+      this.scheduleSave();
+    }
     this.fen = normalizeFen(fen);
     this.lastMove = move;
     this.selected = null;
@@ -51,6 +67,10 @@ class Game {
   /** Brett im Editor geändert oder Farbe umgeschaltet: FEN aus dem Grid neu aufbauen. */
   private rebuild(grid: Grid, turn: "w" | "b") {
     this.fen = rebuildFen(this.fen, grid, turn);
+    // Nach einer Korrektur beginnt die Zugliste neu ab der korrigierten Stellung.
+    this.startFen = this.fen;
+    this.history = [];
+    this.scheduleSave();
     this.lastMove = null;
     this.topMoves = [];
     this.selected = null;
@@ -71,12 +91,120 @@ class Game {
     this.rebuild(grid, this.turn);
   }
 
-  newGame(fen = START_FEN) {
+  /** Neue Partie (Grundstellung, Scan oder leeres Brett): neuer Eintrag in der Partienliste. */
+  newGame(fen = START_FEN, name = "") {
     this.loadFen(fen);
+    this.startFen = this.fen;
+    this.history = [];
+    this.gameId = null;
+    this.gameName = name;
     this.evalCp = null;
     this.evalMate = null;
     this.analyzedFen = null;
-    this.setStatus("Neue Partie. Weiß fängt an.");
+    this.setStatus(this.turn === "w" ? "Neue Partie. Weiß ist am Zug." : "Neue Partie. Schwarz ist am Zug.");
+    this.scheduleSave(0);
+  }
+
+  // --- Speichern und Laden -------------------------------------------------
+
+  scheduleSave(delay = 400) {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveState = "saving";
+    this.saveTimer = setTimeout(() => {
+      this.saveTimer = null;
+      // Speichervorgänge nacheinander, damit der erste die ID vergibt, bevor der nächste kommt.
+      this.saving = this.saving.then(() => this.saveNow());
+    }, delay);
+  }
+
+  private async saveNow() {
+    const body = { name: this.gameName || undefined, start_fen: this.startFen, moves: this.history.map((m) => ({ uci: m.uci })), fen: this.fen };
+    // Eine unberührte Grundstellung legt noch keinen Eintrag an.
+    if (!this.gameId && !this.history.length && this.fen === START_FEN) {
+      this.saveState = "idle";
+      return;
+    }
+    try {
+      let g;
+      try {
+        g = this.gameId ? await api.saveGame(this.gameId, body) : await api.createGame(body);
+      } catch (e) {
+        // Auf einem anderen Gerät gelöscht: als neue Partie ablegen.
+        if (!this.gameId || !/gibt es nicht/.test((e as Error).message)) throw e;
+        g = await api.createGame(body);
+      }
+      this.gameId = g.id;
+      this.gameName = g.name;
+      this.saveState = "saved";
+      this.saveError = "";
+    } catch (e) {
+      this.saveState = "error";
+      this.saveError = (e as Error).message;
+    }
+  }
+
+  rename(name: string) {
+    this.gameName = name.trim();
+    if (this.gameName) this.scheduleSave(0);
+  }
+
+  async refreshGames() {
+    try {
+      this.savedGames = await api.listGames();
+    } catch {
+      /* Liste bleibt, wie sie war */
+    }
+  }
+
+  async openGame(id: string, quiet = false) {
+    try {
+      const g = await api.getGame(id);
+      this.gameId = g.id;
+      this.gameName = g.name;
+      this.startFen = normalizeFen(g.start_fen);
+      this.history = g.moves.map((m) => ({ ...m, fen: normalizeFen(m.fen) }));
+      const last = g.moves.at(-1);
+      this.loadFen(g.fen, null);
+      this.lastMove = last ? { uci: last.uci, san: last.san, from: last.uci.slice(0, 2), to: last.uci.slice(2, 4), piece: last.piece, capture: false } : null;
+      this.evalCp = null;
+      this.evalMate = null;
+      this.analyzedFen = null;
+      this.saveState = "saved";
+      if (!quiet) this.setStatus(`„${g.name}“ ist offen. ${this.turn === "w" ? "Weiß" : "Schwarz"} ist am Zug.`, "good");
+      else this.setStatus(`Weiter mit „${g.name}“. ${this.turn === "w" ? "Weiß" : "Schwarz"} ist am Zug.`);
+    } catch (e) {
+      this.setStatus((e as Error).message, "bad");
+    }
+  }
+
+  async deleteGame(id: string) {
+    try {
+      await api.deleteGame(id);
+      if (id === this.gameId) this.gameId = null;
+      await this.refreshGames();
+    } catch (e) {
+      this.setStatus((e as Error).message, "bad");
+    }
+  }
+
+  /** Beim Start: die zuletzt gespielte Partie öffnen, egal auf welchem Gerät sie gespielt wurde. */
+  async resumeLatest() {
+    await this.refreshGames();
+    const latest = this.savedGames[0];
+    if (latest) await this.openGame(latest.id, true);
+  }
+
+  undo() {
+    if (this.busy || !this.history.length) return;
+    const removed = this.history.pop()!;
+    const prev = this.history.at(-1);
+    this.fen = prev ? prev.fen : this.startFen;
+    this.lastMove = prev ? { uci: prev.uci, san: prev.san, from: prev.uci.slice(0, 2), to: prev.uci.slice(2, 4), piece: prev.piece, capture: false } : null;
+    this.selected = null;
+    this.targets = [];
+    this.topMoves = [];
+    this.setStatus(`Zug ${sanDe(removed.san)} zurückgenommen.`);
+    this.scheduleSave(0);
   }
 
   private async legalMoves(): Promise<string[]> {

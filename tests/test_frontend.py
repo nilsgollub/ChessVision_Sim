@@ -6,7 +6,9 @@ Ein vorhandenes Chromium lässt sich mit CHROMIUM_PATH=/pfad/zu/chrome angeben.
 import os
 import shutil
 import socket
+import json
 import subprocess
+import tempfile
 import sys
 import time
 import urllib.request
@@ -27,9 +29,10 @@ def _free_port():
 @pytest.fixture(scope="module")
 def server_url():
     port = _free_port()
+    env = {**os.environ, "BRETT_DATA_DIR": tempfile.mkdtemp(prefix="brett-ui-")}
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "backend:app", "--host", "127.0.0.1", "--port", str(port)],
-        cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env,
     )
     url = f"http://127.0.0.1:{port}"
     for _ in range(100):
@@ -61,8 +64,15 @@ def browser():
         b.close()
 
 
+def clear_games(url):
+    games = json.load(urllib.request.urlopen(f"{url}/api/games"))
+    for g in games:
+        urllib.request.urlopen(urllib.request.Request(f"{url}/api/games/{g['id']}", method="DELETE"))
+
+
 @pytest.fixture
 def page(browser, server_url):
+    clear_games(server_url)  # jede Prüfung beginnt ohne gespeicherte Partie
     pg = browser.new_page(viewport={"width": 390, "height": 844})
     pg.goto(server_url)
     pg.click("[data-testid=view-2d]")
@@ -128,7 +138,51 @@ def test_turn_toggle_and_editor_rebuild_from_grid(page):
     assert fen(page).split()[2] == "Qkq"
 
 
+def wait_saved(page):
+    page.wait_for_function("window.brettfreunde.game.saveState === 'saved'")
+
+
+def test_game_continues_on_second_device(page, browser, server_url):
+    move(page, "e2e4")
+    move(page, "e7e5")
+    wait_saved(page)
+    # Zweites Gerät (Tablet) öffnet die App und landet in derselben Partie
+    tablet = browser.new_page(viewport={"width": 1024, "height": 768})
+    tablet.goto(server_url)
+    tablet.wait_for_function("window.brettfreunde.getFen().startsWith('rnbqkbnr/pppp1ppp/8/4p3/4P3')")
+    tablet.click("[data-tab=partien]")
+    assert "1." in tablet.inner_text("ol.moves") and "e5" in tablet.inner_text("ol.moves")
+    # Dort weiterspielen, das Handy sieht den Stand nach dem Öffnen der Liste
+    tablet.click("[data-tab=spielen]")
+    tablet.click("[data-testid=view-2d]")
+    move(tablet, "g1f3")
+    wait_saved(tablet)
+    tablet.close()
+    page.reload()
+    page.wait_for_function("window.brettfreunde.getFen().includes('5N2')")
+
+
+def test_undo_and_switching_games(page, server_url):
+    move(page, "d2d4")
+    move(page, "d7d5")
+    page.click("text=Zug zurück")
+    assert fen(page) == "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
+    wait_saved(page)
+    page.click("[data-tab=partien]")
+    page.fill(".name input", "Papa gegen Lea")
+    page.press(".name input", "Enter")
+    wait_saved(page)
+    page.click("text=Neue Partie")
+    move(page, "c2c4")
+    wait_saved(page)
+    page.click("[data-tab=partien]")
+    page.wait_for_selector("text=Papa gegen Lea")
+    page.click("[aria-label='Papa gegen Lea weiterspielen']")
+    page.wait_for_function("window.brettfreunde.getFen().startsWith('rnbqkbnr/pppppppp/8/8/3P4')")
+
+
 def test_three_d_board_moves_by_tap(browser, server_url):
+    clear_games(server_url)
     pg = browser.new_page(viewport={"width": 390, "height": 844})
     pg.goto(server_url)
     try:

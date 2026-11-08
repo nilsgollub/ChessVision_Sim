@@ -25,6 +25,8 @@
   --sky: #3D93E8;
   --sky-soft: #DFEFFF;
   --coral: #F0784A;
+  --coral-soft: #FFE7DC;
+  --coral-deep: #B65B38;
   /* „Sprinkle“: verstreute Zuckerperlen aus der Katalog-Welt */
   --sprinkle:
     radial-gradient(circle at 12% 18%, #F2559A 0 3px, transparent 3.5px),

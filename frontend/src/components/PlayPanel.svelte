@@ -17,6 +17,10 @@
     </button>
   </div>
 
+  <button class="undo" onclick={() => game.undo()} disabled={game.busy || !game.history.length}>
+    <Icon name="undo" size={20} /> Zug zurück
+  </button>
+
   <TopMoves />
 
   <section class="opponent">
@@ -43,6 +47,8 @@
 
 <style>
   .panel { display: grid; gap: 14px; }
+  .undo { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; margin-top: -4px; border: 0; border-radius: 99px; background: transparent; color: var(--ink); font-weight: 700; }
+  .undo:not(:disabled):hover { background: #fff; box-shadow: inset 0 0 0 2px var(--line-strong); }
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .opponent { background: #fff; border-radius: 20px; padding: 12px 14px; display: grid; gap: 12px; box-shadow: inset 0 0 0 2px var(--line); }
   .switch { display: flex; align-items: center; gap: 12px; font-weight: 700; min-height: 44px; cursor: pointer; }

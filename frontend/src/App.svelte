@@ -8,6 +8,8 @@
   import ScanPanel from "./components/ScanPanel.svelte";
   import EditorPanel from "./components/EditorPanel.svelte";
   import MorePanel from "./components/MorePanel.svelte";
+  import GamesPanel from "./components/GamesPanel.svelte";
+  import { onMount } from "svelte";
   import Icon from "./components/Icon.svelte";
   import { evalWords } from "./lib/pieces";
 
@@ -15,12 +17,16 @@
     { id: "spielen", label: "Spielen", icon: "play", color: "var(--pink)", soft: "#FFE3EF" },
     { id: "scannen", label: "Scannen", icon: "camera", color: "var(--sky)", soft: "var(--sky-soft)" },
     { id: "korrigieren", label: "Korrigieren", icon: "pencil", color: "var(--mint)", soft: "var(--mint-soft)" },
+    { id: "partien", label: "Partien", icon: "games", color: "var(--coral)", soft: "var(--coral-soft)" },
     { id: "mehr", label: "Mehr", icon: "more", color: "var(--lilac)", soft: "var(--lilac-soft)" },
   ];
 
   const evalText = $derived(game.evalCp !== null || game.evalMate !== null ? evalWords(game.evalCp, game.evalMate) : "");
 
+  onMount(() => { game.resumeLatest(); });
+
   function setTab(t: Tab) {
+    if (t === "partien") game.refreshGames();
     game.tab = t;
     game.selected = null;
     game.targets = [];
@@ -58,6 +64,7 @@
         {#if game.tab === "spielen"}<PlayPanel />
         {:else if game.tab === "scannen"}<ScanPanel />
         {:else if game.tab === "korrigieren"}<EditorPanel />
+        {:else if game.tab === "partien"}<GamesPanel />
         {:else}<MorePanel />{/if}
       </div>
     </section>
@@ -98,11 +105,11 @@
   .side { display: grid; gap: 12px; align-content: start; }
 
   .nav {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(4, 1fr);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(5, 1fr);
     background: #fff; padding: 6px 8px max(8px, env(safe-area-inset-bottom)); box-shadow: 0 -6px 20px rgba(42, 47, 90, 0.1);
     border-radius: 22px 22px 0 0;
   }
-  .nav button { display: grid; justify-items: center; gap: 2px; border: 0; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 0.78rem; min-height: 56px; border-radius: 16px; padding: 6px 0; }
+  .nav button { display: grid; justify-items: center; gap: 2px; border: 0; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 0.74rem; min-height: 56px; border-radius: 16px; padding: 6px 0; }
   .nav-icon { color: var(--tab); display: grid; place-items: center; width: 40px; height: 30px; border-radius: 99px; transition: background 180ms; }
   .nav button.on { color: var(--ink); }
   .nav button.on .nav-icon { background: var(--tab-soft); }

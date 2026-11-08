@@ -1,6 +1,17 @@
 export interface MoveInfo { uci: string; san: string; from: string; to: string; piece: string; capture: boolean }
 export interface TopMove extends MoveInfo { rank: number; eval_cp: number | null; mate: number | null; evaluation: string }
 
+export interface HistoryMove { uci: string; san: string; piece: string; fen: string }
+export interface SavedGame { id: string; name: string; start_fen: string; moves: HistoryMove[]; fen: string; created: number; updated: number }
+export interface GameSummary { id: string; name: string; fen: string; updated: number; created: number; move_count: number; turn: "w" | "b"; result: string | null }
+
+async function req<T>(method: string, url: string, body?: unknown): Promise<T> {
+  const res = await fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { detail?: string }).detail || `Fehler ${res.status}`);
+  return data as T;
+}
+
 async function post<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const data = await res.json().catch(() => ({}));
@@ -18,6 +29,11 @@ export const api = {
   play: (fen: string, level: number) =>
     post<{ game_over: boolean; result?: string | null; move?: MoveInfo; fen: string; is_check?: boolean; is_game_over?: boolean }>(
       "/api/engine-play", { fen, level }),
+  listGames: () => req<GameSummary[]>("GET", "/api/games"),
+  getGame: (id: string) => req<SavedGame>("GET", `/api/games/${id}`),
+  createGame: (g: { name?: string; start_fen: string; moves: { uci: string }[]; fen: string }) => req<SavedGame>("POST", "/api/games", g),
+  saveGame: (id: string, g: { name?: string; start_fen: string; moves: { uci: string }[]; fen: string }) => req<SavedGame>("PUT", `/api/games/${id}`, g),
+  deleteGame: (id: string) => req<{ deleted: string }>("DELETE", `/api/games/${id}`),
   legalMoves: (fen: string) => post<{ moves: string[] }>("/api/legal-moves", { fen }),
   async detectCorners(file: File) {
     const fd = new FormData();

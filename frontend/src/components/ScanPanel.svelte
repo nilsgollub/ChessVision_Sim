@@ -63,7 +63,8 @@
     try {
       const res = await api.scan(file, corners, game.turn);
       warped = res.warped_image_b64;
-      game.newGame(res.fen);
+      const now = new Date();
+      game.newGame(res.fen, `Foto vom ${now.toLocaleDateString("de-CH", { day: "numeric", month: "numeric" })}, ${now.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`);
       game.setStatus(res.pieces_detected_count > 0
         ? `${res.pieces_detected_count} Figuren erkannt. Prüfe das Brett und korrigiere, was nicht stimmt.`
         : "Keine Figuren erkannt. Die Grundstellung ist geladen, du kannst sie korrigieren.", "good");

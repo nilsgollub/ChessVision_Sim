@@ -42,6 +42,11 @@ export function evalShare(cp: number | null, mate: number | null): number {
   return 1 / (1 + Math.exp(-v / 300));
 }
 
+/** Zugnotation mit deutschen Figurenbuchstaben (S Springer, L Läufer, T Turm, D Dame, K König). */
+export function sanDe(san: string): string {
+  return san.replace(/[NBRQ]/g, (ch) => ({ N: "S", B: "L", R: "T", Q: "D" })[ch] ?? ch);
+}
+
 export const RANK_COLORS = ["#F2559A", "#8E6BE3", "#3D93E8"];
 /** Rangfarben für Flächen mit weißer Ziffer. */
 export const RANK_DEEP = ["#C6457E", "#8161CE", "#3177BB"];

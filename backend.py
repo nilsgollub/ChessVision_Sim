@@ -13,6 +13,7 @@ from typing import List
 import json
 
 from vision_engine import ChessVisionEngine
+from games_store import GameIn, GameStore
 
 app = FastAPI(title="Chess Vision & Sim Backend")
 
@@ -329,6 +330,46 @@ async def api_legal_moves(req: FenRequest):
 @app.get("/api/engine-levels")
 async def api_engine_levels():
     return [{"level": k, "label": v["label"]} for k, v in ENGINE_LEVELS.items()]
+
+
+# --- Gespeicherte Partien ---------------------------------------------------
+
+games = GameStore(os.getenv("BRETT_DATA_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "games")))
+
+
+def _game_or_404(fn, *args):
+    try:
+        return fn(*args)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Diese Partie gibt es nicht (mehr).")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/games")
+async def api_games_list():
+    return games.list()
+
+
+@app.post("/api/games")
+async def api_games_create(data: GameIn):
+    return _game_or_404(games.create, data)
+
+
+@app.get("/api/games/{game_id}")
+async def api_games_get(game_id: str):
+    return _game_or_404(games.get, game_id)
+
+
+@app.put("/api/games/{game_id}")
+async def api_games_save(game_id: str, data: GameIn):
+    return _game_or_404(games.save, game_id, data)
+
+
+@app.delete("/api/games/{game_id}")
+async def api_games_delete(game_id: str):
+    _game_or_404(games.delete, game_id)
+    return {"deleted": game_id}
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

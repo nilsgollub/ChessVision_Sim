@@ -1,6 +1,6 @@
 <script lang="ts">
   import { game } from "../lib/game.svelte";
-  import { evalWords, pieceInfo, RANK_COLORS, RANK_DEEP } from "../lib/pieces";
+  import { evalWords, pieceInfo, RANK_COLORS, RANK_DEEP, sanDe } from "../lib/pieces";
   import PieceArt from "./PieceArt.svelte";
 </script>
 
@@ -13,7 +13,7 @@
         <div class="art"><PieceArt piece={m.piece} size={46} /></div>
         <div class="what">
           <p class="line"><b>{info.name}</b> nach {m.to}{m.capture ? " und schlägt" : ""}</p>
-          <p class="sub"><span class="san">{m.san}</span> · {evalWords(m.eval_cp, m.mate)}</p>
+          <p class="sub"><span class="san">{sanDe(m.san)}</span> · {evalWords(m.eval_cp, m.mate)}</p>
         </div>
         <button class="go" disabled={game.busy}
           onclick={() => game.move(m.from, m.to)} aria-label="{info.name} nach {m.to} ziehen">Ziehen</button>

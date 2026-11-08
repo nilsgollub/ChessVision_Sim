@@ -16,6 +16,10 @@
     clear: "M5 5l14 14M19 5L5 19",
     check: "M5 12.5l4.5 4.5L19 7",
     upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
+    undo: "M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
+    games: "M4 7h11v13H4zM8 7V4h12v13h-5M8 11.5h3M8 15h3",
+    trash: "M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",
+    plus: "M12 5v14M5 12h14",
   };
   const filled = false;
 </script>
