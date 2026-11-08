@@ -94,15 +94,15 @@ API-Endpunkte: `/api/games` (GET Liste, POST neu), `/api/games/{id}` (GET, PUT, 
 
 ### 5. Android-App
 
-`app/` ist eine schlanke Capacitor-Hülle (`ch.gollub.brettfreunde`). Beim ersten Start fragt sie nach der Server-Adresse, zum Beispiel `http://steuer.srv.local:8000` zuhause oder die Tailscale-Adresse unterwegs. Sie prüft, ob der Server antwortet, merkt sich die Adresse und lädt dann die Web-App direkt vom Server. App und Server passen dadurch immer zusammen. Ein neues Frontend braucht kein neues APK, nur Änderungen an `app/www/` oder `app/android/`. In der App steht unter „Mehr“ der Knopf „Server wechseln“.
+`app/` ist eine schlanke Capacitor-Hülle (`ch.gollub.brettfreunde`). Beim ersten Start fragt sie nach der Server-Adresse, zum Beispiel `http://192.168.1.20:8000` im Heimnetz oder eine VPN-Adresse unterwegs. Feste Schnellwahl-Adressen für den eigenen Build kommen in `app/www/presets.js` (Vorlage: `presets.example.js`, nicht im Repo). Sie prüft, ob der Server antwortet, merkt sich die Adresse und lädt dann die Web-App direkt vom Server. App und Server passen dadurch immer zusammen. Ein neues Frontend braucht kein neues APK, nur Änderungen an `app/www/` oder `app/android/`. In der App steht unter „Mehr“ der Knopf „Server wechseln“.
 
-Bauen und ins F-Droid-Repo „Homelab-Apps“ legen (auf dem Steuer-Container, nach dem Commit, weil die Versionsnummer die Anzahl der Commits ist):
+Bauen (nach dem Commit, weil die Versionsnummer die Anzahl der Commits ist). Mit einer lokalen `app/publish.env` und `PUBLISH_CMD=…` legt das Skript das APK danach z.B. in ein eigenes F-Droid-Repo:
 
 ```sh
 app/publish.sh
 ```
 
-Signiert wird mit dem Debug-Schlüssel des Steuer-Containers wie bei den anderen Homelab-Apps. Der Server muss laufen (`python backend.py`), sonst meldet die App, dass er nicht antwortet.
+Signiert wird mit dem Debug-Schlüssel des Build-Rechners (`~/.android/debug.keystore`); für die Verteilung im eigenen Netz reicht das. Der Server muss laufen (`python backend.py`), sonst meldet die App, dass er nicht antwortet.
 
 ### 6. Tests
 

@@ -40,18 +40,17 @@
 
     <section id="setup" class="card" hidden>
       <p>Wo läuft dein Brettfreunde-Server?</p>
-      <div class="choices">
-        <button class="choice" data-url="http://steuer.srv.local:8000"><b>Zuhause</b>steuer.srv.local:8000</button>
-        <button class="choice" data-url="http://100.94.42.66:8000"><b>Unterwegs (Tailscale)</b>100.94.42.66:8000</button>
-      </div>
+      <div class="choices" id="choices"></div>
       <label>Adresse
-        <input id="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://steuer.srv.local:8000" />
+        <input id="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="z.B. http://192.168.1.20:8000" />
       </label>
       <button id="go" class="go">Verbinden</button>
       <p id="msg" role="status" aria-live="polite"></p>
     </section>
   </main>
 
+  <!-- Optionale Schnellwahl-Adressen für den eigenen Build, siehe presets.example.js (nicht im Repo) -->
+  <script src="presets.js" onerror="this.remove()"></script>
   <script>
     // Merkt sich die Server-Adresse und lädt dann die Web-App vom Server.
     // Erreichbarkeit per no-cors: eine Antwort (auch undurchsichtig) heißt "Server da".
@@ -106,7 +105,17 @@
       $("url").value = prefill || "";
     }
 
-    document.querySelectorAll(".choice").forEach((b) => b.addEventListener("click", () => { $("url").value = b.dataset.url; connect(b.dataset.url); }));
+    const presets = Array.isArray(window.BRETT_PRESETS) ? window.BRETT_PRESETS : [];
+    for (const p of presets) {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.innerHTML = "<b></b>";
+      b.firstChild.textContent = p.label;
+      b.append(normalize(p.url).replace(/^https?:\/\//, ""));
+      b.addEventListener("click", () => { $("url").value = p.url; connect(p.url); });
+      $("choices").append(b);
+    }
+    $("choices").hidden = presets.length === 0;
     $("go").addEventListener("click", () => connect($("url").value));
     $("url").addEventListener("keydown", (e) => { if (e.key === "Enter") connect($("url").value); });
 
@@ -120,7 +129,7 @@
         $("msg").textContent = "Der Server " + saved + " antwortet gerade nicht. Andere Adresse wählen oder nochmal verbinden.";
         return;
       }
-      showSetup(saved || "http://steuer.srv.local:8000");
+      showSetup(saved || (presets[0] && presets[0].url) || "");
     })();
   </script>
 </body>
