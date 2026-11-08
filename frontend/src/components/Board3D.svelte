@@ -31,11 +31,11 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 0.92;
     host.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(31, 1, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(29, 1, 0.1, 100);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = false;
     controls.enableDamping = true;
@@ -46,9 +46,9 @@
     controls.target.set(0, 0, 0.3);
 
     // Licht: weiches Himmelslicht und eine Sonne für Schatten.
-    scene.add(new THREE.HemisphereLight(0xffffff, 0xc9bff0, 1.6));
-    const sun = new THREE.DirectionalLight(0xffffff, 2.2);
-    sun.position.set(-4, 10, 6);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8f80d6, 1.25));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.7);
+    sun.position.set(-6, 8, 7);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
     sun.shadow.camera.left = -6; sun.shadow.camera.right = 6;
@@ -56,6 +56,10 @@
     sun.shadow.radius = 4;
     sun.shadow.bias = -0.0008;
     scene.add(sun);
+    // Gegenlicht zeichnet die Umrisse der hellen Figuren nach
+    const rim = new THREE.DirectionalLight(0xb9a8ff, 1.4);
+    rim.position.set(3, 5, -9);
+    scene.add(rim);
 
     // Brett
     const css = getComputedStyle(document.documentElement);
@@ -65,7 +69,7 @@
     frame.receiveShadow = true;
     scene.add(frame);
     const squareGeo = new THREE.BoxGeometry(1, 0.06, 1);
-    const lightMat = new THREE.MeshStandardMaterial({ color: col("--sq-light"), roughness: 0.6 });
+    const lightMat = new THREE.MeshStandardMaterial({ color: col("--sq-light-3d"), roughness: 0.6 });
     const darkMat = new THREE.MeshStandardMaterial({ color: col("--sq-dark"), roughness: 0.6 });
     const squareMeshes: THREE.Mesh[] = [];
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
@@ -110,9 +114,26 @@
     const collarGeo = new THREE.TorusGeometry(0.262, 0.032, 10, 40);
     const bodies: Record<PieceType, THREE.BufferGeometry[]> = {
       p: [lathe([[0, 0.15], [0.27, 0.15], [0.2, 0.36], [0.14, 0.5], [0.12, 0.56], [0, 0.56]]), new THREE.SphereGeometry(0.19, 32, 20).translate(0, 0.68, 0)],
-      r: [lathe([[0, 0.15], [0.29, 0.15], [0.25, 0.6], [0.31, 0.64], [0.31, 0.86], [0.2, 0.86], [0.2, 0.8], [0, 0.8]])],
+      r: [
+        lathe([[0, 0.15], [0.29, 0.15], [0.25, 0.6], [0.31, 0.64], [0.31, 0.84], [0.21, 0.84], [0.21, 0.78], [0, 0.78]]),
+        // Zinnen: vier Klötze auf dem Rand
+        ...[0, 1, 2, 3].map((i) => {
+          const a = (i * Math.PI) / 2 + Math.PI / 4;
+          return new RoundedBoxGeometry(0.17, 0.16, 0.12, 2, 0.03).rotateY(-a).translate(Math.cos(a) * 0.255, 0.91, Math.sin(a) * 0.255);
+        }),
+      ],
       b: [lathe([[0, 0.15], [0.27, 0.15], [0.17, 0.5], [0.13, 0.6], [0.2, 0.7], [0.22, 0.82], [0.16, 0.96], [0.06, 1.04], [0, 1.05]]), new THREE.SphereGeometry(0.06, 16, 12).translate(0, 1.1, 0)],
-      q: [lathe([[0, 0.15], [0.29, 0.15], [0.18, 0.55], [0.15, 0.7], [0, 0.7]]), new THREE.SphereGeometry(0.2, 32, 20).translate(0, 0.86, 0), lathe([[0.05, 0.98], [0.22, 1.02], [0.28, 1.2], [0.22, 1.12], [0, 1.1]])],
+      q: [
+        lathe([[0, 0.15], [0.29, 0.15], [0.18, 0.55], [0.15, 0.7], [0, 0.7]]),
+        new THREE.SphereGeometry(0.2, 32, 20).translate(0, 0.86, 0),
+        lathe([[0.05, 0.98], [0.22, 1.02], [0.28, 1.18], [0.22, 1.12], [0, 1.1]]),
+        // Kronenzacken als Kugeln
+        ...[0, 1, 2, 3, 4, 5].map((i) => {
+          const a = (i * Math.PI) / 3;
+          return new THREE.SphereGeometry(0.055, 14, 10).translate(Math.cos(a) * 0.27, 1.22, Math.sin(a) * 0.27);
+        }),
+        new THREE.SphereGeometry(0.07, 16, 12).translate(0, 1.2, 0),
+      ],
       k: [lathe([[0, 0.15], [0.3, 0.15], [0.19, 0.55], [0.16, 0.72], [0, 0.72]]), new THREE.SphereGeometry(0.21, 32, 20).translate(0, 0.9, 0), lathe([[0.06, 1.04], [0.21, 1.06], [0.25, 1.2], [0, 1.18]]), new RoundedBoxGeometry(0.07, 0.3, 0.07, 2, 0.02).translate(0, 1.36, 0), new RoundedBoxGeometry(0.22, 0.07, 0.07, 2, 0.02).translate(0, 1.38, 0)],
       n: [],
     };
@@ -126,11 +147,11 @@
       geo.translate(0, 0.17, 0);
       bodies.n = [lathe([[0, 0.15], [0.27, 0.15], [0.24, 0.24], [0, 0.24]]), geo];
     }
-    const faceHeight: Record<PieceType, number> = { p: 0.68, r: 0.72, b: 0.72, q: 0.86, k: 0.9, n: 0.8 };
-    const faceRadius: Record<PieceType, number> = { p: 0.19, r: 0.27, b: 0.21, q: 0.2, k: 0.21, n: 0.16 };
+    const faceHeight: Record<PieceType, number> = { p: 0.68, r: 0.7, b: 0.74, q: 0.86, k: 0.9, n: 0.8 };
+    const faceRadius: Record<PieceType, number> = { p: 0.19, r: 0.3, b: 0.2, q: 0.2, k: 0.21, n: 0.16 };
 
     const mats = {
-      w: new THREE.MeshPhysicalMaterial({ color: 0xfffbf6, roughness: 0.32, clearcoat: 0.9, clearcoatRoughness: 0.25 }),
+      w: new THREE.MeshPhysicalMaterial({ color: 0xf6ecdf, roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.45 }),
       b: new THREE.MeshPhysicalMaterial({ color: 0x353a6e, roughness: 0.32, clearcoat: 0.9, clearcoatRoughness: 0.2 }),
       eyeDark: new THREE.MeshBasicMaterial({ color: 0x2a2f5a }),
       eyeLight: new THREE.MeshBasicMaterial({ color: 0xffffff }),
@@ -139,9 +160,9 @@
     const ribbonMats = Object.fromEntries(
       (Object.keys(PIECES) as PieceType[]).map((t) => [t, new THREE.MeshStandardMaterial({ color: PIECES[t].ribbon, roughness: 0.45 })]),
     ) as unknown as Record<PieceType, THREE.Material>;
-    const eyeGeo = new THREE.SphereGeometry(0.035, 12, 8);
+    const eyeGeo = new THREE.SphereGeometry(0.052, 16, 12);
     const maneGeo = new THREE.SphereGeometry(0.06, 12, 10);
-    const cheekGeo = new THREE.CircleGeometry(0.04, 16);
+    const cheekGeo = new THREE.CircleGeometry(0.058, 20);
 
     function buildPiece(symbol: string): THREE.Group {
       const t = symbol.toLowerCase() as PieceType;
@@ -176,16 +197,22 @@
         for (const s of [1, -1]) {
           const e = new THREE.Mesh(eyeGeo, eyeMat);
           e.position.set(-0.035, 0.66, s * 0.235);
+          e.scale.setScalar(1.15);
+          const ch = new THREE.Mesh(cheekGeo, mats.cheek);
+          ch.position.set(-0.16, 0.56, s * 0.236);
+          ch.rotation.y = s > 0 ? 0 : Math.PI;
+          face.add(ch);
           face.add(e);
         }
       } else {
         for (const s of [-1, 1]) {
           const e = new THREE.Mesh(eyeGeo, eyeMat);
-          e.position.set(s * 0.075, h + 0.02, rad * 0.93);
+          e.position.set(s * 0.085, h + 0.03, rad * 0.9);
+          e.scale.set(1, 1.25, 0.6);
           face.add(e);
           const ch = new THREE.Mesh(cheekGeo, mats.cheek);
-          ch.position.set(s * 0.13, h - 0.05, rad * 0.86);
-          ch.rotation.y = s * 0.45;
+          ch.position.set(s * 0.14, h - 0.045, rad * 0.86 + 0.012);
+          ch.rotation.y = s * 0.55;
           face.add(ch);
         }
       }

@@ -28,7 +28,7 @@
   .ranks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   li {
     position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
-    background: #fff; border-radius: 20px; padding: 10px 12px 10px 30px;
+    background: var(--soft); border-radius: 20px; padding: 10px 12px 10px 30px;
     box-shadow: 0 4px 14px rgba(42, 47, 90, 0.08), inset 0 0 0 2px var(--line);
   }
   .ribbon {
@@ -36,9 +36,9 @@
     font: 600 1.05rem/30px var(--font-display); text-align: center;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
   }
-  .art { background: var(--soft); border-radius: 14px; padding: 2px; margin-left: 10px; }
+  .art { background: #fff; border-radius: 14px; padding: 2px; margin-left: 10px; }
   .line { margin: 0; font-size: 1rem; }
-  .line b { font-family: var(--font-display); font-weight: 600; }
+  .line b { font-family: var(--font-display); font-weight: 700; }
   .sub { margin: 2px 0 0; font-size: 0.85rem; color: var(--ink-soft); }
   .san { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
   .go { min-height: 44px; padding: 0 14px; border-radius: 99px; border: 2px solid var(--rank); background: #fff; color: var(--ink); font-weight: 700; }

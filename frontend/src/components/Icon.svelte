@@ -2,7 +2,7 @@
   // Eigene Strichsymbole, 24er-Raster, Strich 2.
   let { name, size = 22 }: { name: string; size?: number } = $props();
   const P: Record<string, string> = {
-    play: "M7 4.5v15l12-7.5z",
+    play: "M7.5 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L8.7 4.5a.8.8 0 0 0-1.2.7z",
     camera: "M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4z",
     pencil: "M15 4.5l4.5 4.5L9 19.5H4.5V15zM12.5 7l4.5 4.5",
     more: "M5 12h.01M12 12h.01M19 12h.01",
@@ -17,7 +17,7 @@
     check: "M5 12.5l4.5 4.5L19 7",
     upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
   };
-  const filled = $derived(name === "play");
+  const filled = false;
 </script>
 
 <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill={filled ? "currentColor" : "none"}
