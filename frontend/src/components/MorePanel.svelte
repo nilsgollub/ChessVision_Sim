@@ -3,6 +3,8 @@
   import { lichessUrl } from "../lib/chess";
   import Icon from "./Icon.svelte";
 
+  // In der Android-App (Capacitor hängt das an den User-Agent an) gibt es statt des PWA-Hinweises den Serverwechsel.
+  const inApp = navigator.userAgent.includes("Brettfreunde-App");
   let copied = $state(false);
   async function copyFen() {
     try {
@@ -27,10 +29,18 @@
     <p class="note">Lichess ist der einzige Knopf, der die Stellung ins Internet schickt.</p>
   </section>
 
-  <section class="card">
-    <h3>Als App aufs Handy</h3>
-    <p class="note">In Chrome oben rechts das Menü öffnen und „Zum Startbildschirm hinzufügen“ wählen. Brettfreunde startet dann im Vollbild.</p>
-  </section>
+  {#if inApp}
+    <section class="card">
+      <h3>Server</h3>
+      <p class="note">Verbunden mit {location.host}. Unterwegs über Tailscale oder zuhause im WLAN: hier wechselst du die Adresse.</p>
+      <a class="btn secondary" href="http://localhost/?wechseln" data-testid="server-wechseln"><Icon name="link" /> Server wechseln</a>
+    </section>
+  {:else}
+    <section class="card">
+      <h3>Als App aufs Handy</h3>
+      <p class="note">Am besten die Android-App „Brettfreunde“ aus dem F-Droid-Repo Homelab-Apps installieren. Oder in Chrome oben rechts das Menü öffnen und „Zum Startbildschirm hinzufügen“ wählen.</p>
+    </section>
+  {/if}
 </div>
 
 <style>

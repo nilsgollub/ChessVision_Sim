@@ -12,6 +12,7 @@ ChessVision_Sim/
 ├── games_store.py    # Gespeicherte Partien (JSON-Dateien in data/games/)
 ├── vision_engine.py    # OpenCV Auto-Corner-Detection, Homographie-Entzerrung, YOLO Fußpunkt-Mapping
 ├── chess_yolov8n.pt    # (Optional) Trainiertes YOLOv8-Gewichtsmodell für die 12 Figurenklassen
+├── app/                # Android-App (Capacitor-Hülle): Server wählen, dann Web-App laden
 ├── frontend/           # Web-App (Vite + Svelte 5 + Three.js), Quellcode
 ├── PRODUCT.md          # Produktkontext (Nutzer, Zweck, Grundsätze)
 ├── requirements.txt
@@ -91,7 +92,19 @@ Die App heißt **Brettfreunde**: Figuren sind Charaktere mit Namen und einem Sat
 
 API-Endpunkte: `/api/games` (GET Liste, POST neu), `/api/games/{id}` (GET, PUT, DELETE), `/api/detect-corners`, `/api/scan-board`, `/api/make-move`, `/api/legal-moves`, `/api/engine-analyze` (Top-3 per MultiPV), `/api/engine-play` (Stufen 1–5; Stufe 1 und 2 über Stockfishs `Skill Level`, weil `UCI_Elo` erst bei 1320 beginnt), `/api/engine-levels`.
 
-### 5. Tests
+### 5. Android-App
+
+`app/` ist eine schlanke Capacitor-Hülle (`ch.gollub.brettfreunde`). Beim ersten Start fragt sie nach der Server-Adresse, zum Beispiel `http://steuer.srv.local:8000` zuhause oder die Tailscale-Adresse unterwegs. Sie prüft, ob der Server antwortet, merkt sich die Adresse und lädt dann die Web-App direkt vom Server. App und Server passen dadurch immer zusammen. Ein neues Frontend braucht kein neues APK, nur Änderungen an `app/www/` oder `app/android/`. In der App steht unter „Mehr“ der Knopf „Server wechseln“.
+
+Bauen und ins F-Droid-Repo „Homelab-Apps“ legen (auf dem Steuer-Container, nach dem Commit, weil die Versionsnummer die Anzahl der Commits ist):
+
+```sh
+app/publish.sh
+```
+
+Signiert wird mit dem Debug-Schlüssel des Steuer-Containers wie bei den anderen Homelab-Apps. Der Server muss laufen (`python backend.py`), sonst meldet die App, dass er nicht antwortet.
+
+### 6. Tests
 
 ```sh
 pip install -r requirements-dev.txt

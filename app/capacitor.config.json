@@ -1,0 +1,14 @@
+{
+  "appId": "ch.gollub.brettfreunde",
+  "appName": "Brettfreunde",
+  "webDir": "www",
+  "appendUserAgent": "Brettfreunde-App",
+  "backgroundColor": "#F1EEFF",
+  "server": {
+    "androidScheme": "http",
+    "allowNavigation": ["*"]
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

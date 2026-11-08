@@ -9,3 +9,4 @@ frontend/node_modules/
 .impeccable/ref/
 .impeccable/review/
 data/
+app/node_modules/
