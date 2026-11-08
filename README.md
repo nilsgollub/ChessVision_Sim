@@ -1,144 +1,158 @@
-# ♟️ Brettfreunde (ChessVision Sim) – Projektdokumentation
+# Brettfreunde (ChessVision Sim)
 
-Lokales Computer-Vision- und Schach-Simulationssystem (FastAPI + OpenCV + YOLOv8 + Stockfish) mit mobiler Android Web-App (PWA). Ermöglicht das Fotografieren eines echten Schachbretts, automatische Eckenerkennung & Perspektiventzerrung, Figurenerkennung sowie nahtloses Weiterspielen oder Zugtipps via Stockfish.
+**Photograph a real chessboard, check the position on your phone, then keep playing with hints or against the engine.** A self-hosted family chess companion: FastAPI + OpenCV + YOLOv8 + Stockfish on a small home server, a Svelte/Three.js web app, and a thin Android app. No accounts, no cloud.
 
----
+The user interface is in German (it was built for a German-speaking family). API and documentation are in English; code comments are mostly German.
 
-## 1. Systemarchitektur & Dateistruktur
+<p>
+  <img src="docs/screenshots/phone-3d.png" width="250" alt="3D board with the three best moves as arrows">
+  <img src="docs/screenshots/phone-2d.png" width="250" alt="2D board with a selected knight, its name plate and target squares">
+  <img src="docs/screenshots/phone-games.png" width="250" alt="Saved games with move list">
+</p>
+
+## Features
+
+- **Scan a real board.** Take a photo, adjust the four corner pins, and the board is rectified and the pieces are detected (YOLOv8 with foot-point projection). Correct anything the detector missed in the editor.
+- **3D and 2D board.** A rotatable 3D board (Three.js) with animated moves, and a 2D board with drawn pieces for quick corrections.
+- **Pieces as characters.** Every piece type has a name, a colour and one sentence on how it moves ("Springt im L und hüpft über alle drüber"). Selecting a piece shows its name plate and the squares it can reach.
+- **Stockfish hints.** The three best moves as ranked cards with matching arrows on the board, an evaluation bar and the evaluation in words ("White is slightly better").
+- **Play against the engine** at five levels from beginner to full strength. The two lowest levels use Stockfish's `Skill Level`, because `UCI_Elo` starts at 1320, which is too strong for children.
+- **Saved games across devices.** Every move is saved on the server. Start with a photo on the phone, continue on the PC or tablet. Move list in German notation and undo.
+- **Capture animation, landscape layout, PWA manifest, Lichess export, copy FEN.**
+- **Android app**: a Capacitor shell that asks for the server address once and then loads the web app from the server, so app and server always match.
+
+| Capture | Editor | Scan | App start |
+|---|---|---|---|
+| <img src="docs/screenshots/phone-capture.png" width="190" alt="Capture animation with confetti"> | <img src="docs/screenshots/phone-edit.png" width="190" alt="Editor with piece palette"> | <img src="docs/screenshots/phone-scan.png" width="190" alt="Photo with four corner pins"> | <img src="docs/screenshots/app-launcher.png" width="190" alt="Android app asking for the server address"> |
+
+<img src="docs/screenshots/phone-landscape.png" width="640" alt="Phone in landscape: navigation rail, full-height board, controls on the right">
+
+<img src="docs/screenshots/desktop.png" width="820" alt="Desktop layout with 3D board and hint cards">
+
+## How it works
 
 ```
-ChessVision_Sim/
-├── backend.py          # FastAPI Server, REST-Endpunkte, python-chess & Stockfish-Anbindung
-├── games_store.py    # Gespeicherte Partien (JSON-Dateien in data/games/)
-├── vision_engine.py    # OpenCV Auto-Corner-Detection, Homographie-Entzerrung, YOLO Fußpunkt-Mapping
-├── chess_yolov8n.pt    # (Optional) Trainiertes YOLOv8-Gewichtsmodell für die 12 Figurenklassen
-├── app/                # Android-App (Capacitor-Hülle): Server wählen, dann Web-App laden
-├── frontend/           # Web-App (Vite + Svelte 5 + Three.js), Quellcode
-├── PRODUCT.md          # Produktkontext (Nutzer, Zweck, Grundsätze)
-├── requirements.txt
-├── requirements-dev.txt  # Test-Abhängigkeiten (pytest, httpx, playwright)
-├── tests/              # pytest: API-Tests (TestClient) und Browser-Ablauf (Playwright)
-└── static/             # Gebaute Web-App (erzeugt von `npm run build` in frontend/, nicht von Hand ändern)
+photo ──▶ corner detection ──▶ homography ──▶ YOLOv8 pieces ──▶ foot points ──▶ 8×8 grid ──▶ FEN
+                (OpenCV)        (4 points)                       (projected)                   │
+                                                                                               ▼
+web app (3D/2D board, editor) ◀──────────── python-chess (legal moves) ◀──────── Stockfish (UCI)
 ```
 
+1. **Corner detection** (`vision_engine.detect_board_corners`): grayscale, bilateral filter, adaptive threshold plus Canny, morphological closing, then the largest convex quadrilateral (15–98 % of the image), with convex hull and minimum-area rectangle as fallbacks. Corners are ordered `[a8, h8, h1, a1]` via coordinate sums and differences.
+2. **Homography**: `cv2.getPerspectiveTransform` maps the four corners onto an 800 × 800 px square (100 px per square). The user can drag the pins before scanning; the automatic detection often picks the mat border instead of the playing area.
+3. **Foot-point projection** (`map_pieces_to_grid`): real pieces lean into neighbouring squares when photographed at an angle, so the square is taken from the piece's base, not the box centre: x = (x₁ + x₂)/2, y = y₁ + 0.85 · (y₂ − y₁), projected with the homography. On collisions the more confident detection wins.
+4. **FEN**: castling rights are only granted when king and rook stand on their home squares; en passant starts empty.
+5. **Game logic**: python-chess validates moves; the web app keeps the full FEN from the server (castling rights, en passant, move counters) and only rebuilds it after manual edits.
 
----
+## Repository layout
 
-## 2. Funktionsweise der Pipeline
+```
+backend.py            FastAPI server: REST API, python-chess, Stockfish
+games_store.py        saved games as JSON files (replayed and validated on every save)
+vision_engine.py      corner detection, homography, YOLO foot-point mapping
+frontend/             web app source (Vite + Svelte 5 + TypeScript + Three.js)
+static/               built web app, generated by `npm run build` in frontend/ — do not edit
+app/                  Android app (Capacitor shell)
+training/             training script for the piece detector (Google Colab) and metrics
+tests/                pytest: API tests and Playwright browser flows
+docs/screenshots/     screenshots used in this README
+PRODUCT.md, DESIGN.md product context and design system
+```
 
-### A. Automatische Brettecken-Erkennung (`detect_board_corners`)
+## Quick start
 
-1. **Vorverarbeitung:** Das Kamerabild wird in Graustufen konvertiert und mit einem kantenbewahrenden Bilateralfilter (`cv2.bilateralFilter`) entrauscht.  
-2. **Kanten- & Konturextraktion:** Kombination aus adaptivem Gauß-Thresholding (`cv2.adaptiveThreshold`) und Canny-Edge-Detection (`cv2.Canny`), gefolgt von morphologischem Schließen (`cv2.MORPH_CLOSE`), um unterbrochene Außenlinien des Schachbretts zu verbinden.  
-3. **Polygon-Approximation:** Die größten Konturen (15 % bis 98 % der Bildfläche) werden über `cv2.approxPolyDP` mit adaptiven Epsilon-Toleranzen auf ein konvexes Viereck geprüft. Falls ein Störelement die Kontur ausbeult, wird die konvexe Hülle (`cv2.convexHull`) bzw. die minimale rotierte Bounding Box (`cv2.minAreaRect`) als geometrischer Fallback herangezogen.  
-4. **Punkt-Sortierung (`order_corner_points`):** Die 4 Ecken werden mathematisch über Koordinatensummen ($x+y$) und Differenzen ($y-x$) deterministisch in die Reihenfolge `[TL (a8), TR (h8), BR (h1), BL (a1)]` gebracht.
-
-### B. Homographie & 3D-Fußpunkt-Projektion (`map_pieces_to_grid`)
-
-* Aus den 4 Ecken (ggf. nach Feinjustierung per Touch im UI) wird mittels `cv2.getPerspectiveTransform` die $3 \times 3$ Homographie-Matrix $H$ für ein normiertes $800 \times 800\,\text{px}$ Zielbild ($100 \times 100\,\text{px}$ pro Schachfeld) berechnet.  
-* **Lösung des 3D-Parallaxe-Problems:** Da echte Schachfiguren bei schrägem Kamerawinkel nach oben in benachbarte Felder ragen, wird **nicht** der Mittelpunkt der YOLO-Bounding-Box verwendet, sondern der **Standfuß der Figur**: $$x_{\text{foot}} = \frac{x_1 + x_2}{2}, \quad y_{\text{foot}} = y_1 + 0.85 \cdot (y_2 - y_1)$$  
-* Dieser Punkt wird über `cv2.perspectiveTransform` mit $H$ in das entzerrte 2D-Koordinatensystem projiziert und eindeutig der Spalte (`col = int(wx // 100)`) und Reihe (`row = int(wy // 100)`) zugeordnet.
-
-### C. Spiel- & Engine-Logik (`backend.py`)
-
-* Das Frontend speichert die vollständige FEN aus `/api/make-move`, `/api/engine-analyze` und `/api/scan-board` (Rochaderechte, En-passant-Feld, Zugzähler) und schickt sie unverändert zurück. Nur nach Änderungen im Editor oder beim Umschalten der Farbe am Zug wird sie aus dem Brett neu aufgebaut: Rochaderechte bleiben nur, wenn König und Turm noch auf ihren Ausgangsfeldern stehen, das En-passant-Feld wird `-`, die Zugzähler bleiben. Beim Scan leitet `grid_to_fen` die Rochaderechte ebenso aus der Stellung ab.
-* Nutzt `python-chess` zur Validierung legaler Züge, Schach-/Matt-Erkennung und FEN-Verwaltung.  
-* Kommuniziert über das UCI-Protokoll (`chess.engine.SimpleEngine.popen_uci`) mit einer lokalen **Stockfish**-Instanz, liefert Stellungsbewertungen in Centipawns bzw. Matt-Zügen und berechnet entweder einen visuellen Tipp oder führt den besten KI-Zug direkt aus.
-
----
-
-## 3. Installation & Setup (Linux / WSL2 / Raspberry Pi / Windows)
-
-### 1. Abhängigkeiten installieren
+Requirements: Python 3.11+, [Stockfish](https://stockfishchess.org), optionally Node.js 20+ (only to rebuild the web app) and the Android SDK (only for the app).
 
 ```sh
-pip install fastapi uvicorn python-multipart opencv-python-headless numpy chess ultralytics
+git clone https://github.com/nilsgollub/ChessVision_Sim.git
+cd ChessVision_Sim
+python -m venv .venv && . .venv/bin/activate
+pip install fastapi uvicorn python-multipart opencv-python-headless numpy chess
+sudo apt install stockfish        # Debian/Ubuntu/Raspberry Pi; on Windows set STOCKFISH_PATH
+python backend.py                 # serves on 0.0.0.0:8000
 ```
 
-### 2. Stockfish installieren
+Open `http://<server-ip>:8000` on your phone or computer. The built web app in `static/` is part of the repository, so no Node.js is needed to run it.
 
-* **Ubuntu / Debian / WSL2 / Raspberry Pi:**
+**Stockfish** is searched in this order: environment variable `STOCKFISH_PATH`, `stockfish` on `PATH`, then `/usr/games/stockfish`, `/usr/bin/stockfish`, `/usr/local/bin/stockfish`, `C:/stockfish/stockfish.exe`. If none is found, the error message lists every location it tried.
+
+**Saved games** live in `data/games/` as one JSON file per game (`BRETT_DATA_DIR` changes the location).
+
+### Piece detection (optional)
+
+Without a model the scan still rectifies the board and loads the start position, which you then correct in the editor. With a model, place `chess_yolov8n.pt` in the project root and install Ultralytics; the CPU build of PyTorch is enough for single photos:
 
 ```sh
-sudo apt update && sudo apt install stockfish -y
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install ultralytics
 ```
 
-* **Windows:** Stockfish-Binary von `stockfishchess.org` herunterladen und den Pfad in der Umgebungsvariable `STOCKFISH_PATH` setzen (oder nach `C:/stockfish/stockfish.exe` legen).
-
-Das Backend sucht Stockfish in dieser Reihenfolge: Umgebungsvariable `STOCKFISH_PATH`, `stockfish` im `PATH`, dann `/usr/games/stockfish`, `/usr/bin/stockfish`, `/usr/local/bin/stockfish`, `C:/stockfish/stockfish.exe`. Wird nichts gefunden, nennt die Fehlermeldung alle durchsuchten Orte.
-
-### 3. Server starten
+`training/train_colab.py` trains a starter model on two public datasets (CC BY 4.0) in about five minutes on a Colab L4 GPU. It filters out broken samples (images without labels, labels belonging to a rotated image). First run: mAP50 0.98 on validation and 0.97 on test, see `training/metrics.json`.
 
 ```sh
-python backend.py
+pip install ultralytics huggingface_hub pandas pillow
+python training/train_colab.py --epochs 100 --data-dir ./dataset --out ./out
+cp out/chess_yolov8n.pt .
 ```
 
-Der Server läuft standardmäßig auf `0.0.0.0:8000`.
+The datasets show other boards than yours. For reliable results on your own set, fine-tune with 30–50 labelled photos of your board.
 
-### 4. Web-App bauen (nur nach Änderungen in `frontend/`)
-
-Die gebaute App liegt fertig in `static/`, für den normalen Betrieb reicht `python backend.py`. Nach Änderungen am Frontend:
+## Web app development
 
 ```sh
 cd frontend
 npm install
-npm run build      # schreibt nach ../static
-npm run dev        # Entwicklungsserver mit Live-Reload, leitet /api an Port 8000 weiter
+npm run dev      # dev server with live reload, proxies /api to port 8000
+npm run build    # writes the production build to ../static
 ```
 
-Die App heißt **Brettfreunde**: Figuren sind Charaktere mit Namen und einem Satz, wie sie ziehen. Standard ist ein 3D-Brett (Three.js, mit dem Finger drehbar), daneben eine 2D-Ansicht für Editor und schnelles Korrigieren. Dazu Bewertungsbalken, Pfeile und Karten für die drei besten Züge, ein KI-Gegner in fünf Stufen (Anfänger bis Profi), Lichess-Export, FEN kopieren und ein Manifest für „Zum Startbildschirm hinzufügen“. Ein Service Worker fehlt bewusst: Ohne HTTPS im Heimnetz würde ihn Chrome nicht zulassen.
+## Android app
 
-**Partien speichern:** Jede Partie wird nach jedem Zug automatisch auf dem Server gesichert, als JSON-Datei in `data/games/` (anderer Ort über die Umgebungsvariable `BRETT_DATA_DIR`). Beim Öffnen landet jedes Gerät in der zuletzt gespielten Partie: am Handy fotografieren, am PC oder Tablet weiterspielen. Im Bereich „Partien“ stehen der Name, die Zugliste in deutscher Notation, „Zug zurück“, „Neue Partie“ und alle anderen Partien mit Mini-Brett. Beim Speichern spielt der Server die Zugliste nach und lehnt Stände ab, die nicht zur gemeldeten Stellung passen. Spielen zwei Geräte gleichzeitig dieselbe Partie, gilt der zuletzt gespeicherte Stand. Nach einer Korrektur im Editor beginnt die Zugliste neu ab der korrigierten Stellung.
-
-API-Endpunkte: `/api/games` (GET Liste, POST neu), `/api/games/{id}` (GET, PUT, DELETE), `/api/detect-corners`, `/api/scan-board`, `/api/make-move`, `/api/legal-moves`, `/api/engine-analyze` (Top-3 per MultiPV), `/api/engine-play` (Stufen 1–5; Stufe 1 und 2 über Stockfishs `Skill Level`, weil `UCI_Elo` erst bei 1320 beginnt), `/api/engine-levels`.
-
-### 5. Android-App
-
-`app/` ist eine schlanke Capacitor-Hülle (`ch.gollub.brettfreunde`). Beim ersten Start fragt sie nach der Server-Adresse, zum Beispiel `http://192.168.1.20:8000` im Heimnetz oder eine VPN-Adresse unterwegs. Feste Schnellwahl-Adressen für den eigenen Build kommen in `app/www/presets.js` (Vorlage: `presets.example.js`, nicht im Repo). Sie prüft, ob der Server antwortet, merkt sich die Adresse und lädt dann die Web-App direkt vom Server. App und Server passen dadurch immer zusammen. Ein neues Frontend braucht kein neues APK, nur Änderungen an `app/www/` oder `app/android/`. In der App steht unter „Mehr“ der Knopf „Server wechseln“.
-
-Bauen (nach dem Commit, weil die Versionsnummer die Anzahl der Commits ist). Mit einer lokalen `app/publish.env` und `PUBLISH_CMD=…` legt das Skript das APK danach z.B. in ein eigenes F-Droid-Repo:
+`app/` is a thin [Capacitor](https://capacitorjs.com) shell (`ch.gollub.brettfreunde`). On first start it asks for the server address, checks that the server answers, remembers it and then loads the web app from the server; "Mehr → Server wechseln" switches servers later. Because the UI comes from the server, a new frontend needs no new APK.
 
 ```sh
-app/publish.sh
+cd app
+cp www/presets.example.js www/presets.js   # optional: quick-pick server addresses for your own build
+npm ci
+./publish.sh                               # builds android/app/build/outputs/apk/release/app-release.apk
 ```
 
-Signiert wird mit dem Debug-Schlüssel des Build-Rechners (`~/.android/debug.keystore`); für die Verteilung im eigenen Netz reicht das. Der Server muss laufen (`python backend.py`), sonst meldet die App, dass er nicht antwortet.
+The version code is the number of commits, so commit before building. The release build is signed with the debug key of the build machine, which is enough for sideloading or a private F-Droid repository. An optional, untracked `app/publish.env` with `PUBLISH_CMD=/path/to/script.sh` hands the APK to your own publishing step.
 
-### 6. Tests
+## API
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/detect-corners` | photo → four normalised corner points |
+| POST | `/api/scan-board` | photo + corners → FEN and rectified preview |
+| POST | `/api/make-move` | FEN + move → new FEN, SAN, check/mate |
+| POST | `/api/legal-moves` | FEN → all legal moves (UCI) |
+| POST | `/api/engine-analyze` | FEN → top moves (MultiPV) with evaluation |
+| POST | `/api/engine-play` | FEN + level 1–5 → engine move |
+| GET | `/api/engine-levels` | available engine levels |
+| GET, POST | `/api/games` | list saved games, create a game |
+| GET, PUT, DELETE | `/api/games/{id}` | load, save, delete a game |
+
+## Tests
 
 ```sh
 pip install -r requirements-dev.txt
 pytest
 ```
 
-Der Stockfish-Test wird übersprungen, wenn kein Stockfish gefunden wird; die Browser-Tests (`tests/test_frontend.py`), wenn Playwright oder Chromium fehlen. Ein bereits installiertes Chromium anderer Revision lässt sich mit `CHROMIUM_PATH=/pfad/zu/chrome pytest` verwenden, sonst `playwright install chromium`.
+API tests run without the YOLO model. The Stockfish tests are skipped when Stockfish is missing, the browser tests when Playwright or Chromium is missing (`CHROMIUM_PATH=/path/to/chrome pytest` uses an existing Chromium). The 3D tests need WebGL; headless Chromium provides it via SwiftShader.
 
----
+## Security
 
-## 4. Nutzung auf dem Android-Smartphone
+The server has **no authentication**. Run it only in your home network or behind a VPN such as Tailscale or WireGuard, never directly on the internet. Saved games are validated by replaying every move; game IDs are restricted to `[a-z0-9]`, so requests cannot reach files outside the data directory. The only feature that sends data outside your network is the "Open in Lichess" button.
 
-1. Verbinde dein Smartphone mit demselben WLAN wie der Server/PC.  
-2. Öffne Chrome auf dem Smartphone und rufe `http://<IP-DES-SERVERS>:8000` auf (über das Chrome-Menü *„Zum Startbildschirm hinzufügen“* lässt sich die Web-App wie eine native App im Vollbild nutzen).  
-3. **Ablauf im Spiel:**  
-   * Tippe auf **„📷 Foto aufnehmen“** und fotografiere das echte Brett (Orientierung idealerweise aus Sicht von Weiß, sodass `a8` oben links liegt).  
-   * Prüfe kurz die **4 grünen Eck-Pins** (lassen sich bei Bedarf per Finger verschieben) und tippe auf **„⚡ Brett entzerren & Scannen“**.  
-   * Kontrolliere das 2D-Brett (über die Editor-Leiste unten lassen sich verdeckte Figuren mit einem Tap korrigieren oder das Brett drehen).  
-   * Tippe auf **„💡 Tipp (Stockfish)“**, um den besten Zug blau markiert zu bekommen, oder auf **„🤖 KI-Zug ausführen“**, um die Partie direkt gegen die Engine fortzusetzen.
+## Known limitations
 
----
+- The automatic corner detection often finds the border of a roll-up mat instead of the 8 × 8 playing area; drag the pins onto the corners of the squares before scanning.
+- The starter model was trained on other boards and is not yet fine-tuned for any particular set.
+- Over plain HTTP, Chrome cannot install the web app as a full-screen PWA; use the Android app or put the server behind HTTPS.
+- The UI is German only.
 
-## 5. Eigenes YOLOv8-Modell einbinden / feintunen
+## License
 
-Sobald eine Datei `chess_yolov8n.pt` im Projektverzeichnis liegt, lädt `vision_engine.py` diese automatisch beim Start. Unterstützt werden alle Standard-Klassenbezeichnungen (`wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK` sowie `white-pawn`, `black-king` etc.).
-
-Um ein Modell exakt auf dein eigenes Holz-/Kunststoffbrett zu trainieren:
-
-1. 30–50 Fotos deines Bretts aus verschiedenen Winkeln aufnehmen.  
-2. Auf Roboflow oder CVAT die 12 Figurenklassen labeln.  
-3. Mit Ultralytics trainieren:
-
-```sh
-yolo detect train data=dataset.yaml model=yolov8n.pt epochs=80 imgsz=640
-```
-
-4. Die erzeugte `best.pt` als `chess_yolov8n.pt` in das Hauptverzeichnis kopieren.
+[GNU Affero General Public License v3.0](LICENSE). Fonts, libraries and training data are credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The optional piece detector uses [Ultralytics YOLO](https://github.com/ultralytics/ultralytics) (AGPL-3.0); the chess logic uses [python-chess](https://github.com/niklasf/python-chess) (GPL-3.0); the engine is [Stockfish](https://stockfishchess.org) (GPL-3.0).

@@ -169,15 +169,15 @@ def test_undo_and_switching_games(page, server_url):
     assert fen(page) == "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
     wait_saved(page)
     page.click("[data-tab=partien]")
-    page.fill(".name input", "Papa gegen Lea")
+    page.fill(".name input", "Sonntagspartie")
     page.press(".name input", "Enter")
     wait_saved(page)
     page.click("text=Neue Partie")
     move(page, "c2c4")
     wait_saved(page)
     page.click("[data-tab=partien]")
-    page.wait_for_selector("text=Papa gegen Lea")
-    page.click("[aria-label='Papa gegen Lea weiterspielen']")
+    page.wait_for_selector("text=Sonntagspartie")
+    page.click("[aria-label='Sonntagspartie weiterspielen']")
     page.wait_for_function("window.brettfreunde.getFen().startsWith('rnbqkbnr/pppppppp/8/8/3P4')")
 
 
