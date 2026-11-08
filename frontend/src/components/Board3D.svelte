@@ -164,7 +164,7 @@
     const maneGeo = new THREE.SphereGeometry(0.06, 12, 10);
     const cheekGeo = new THREE.CircleGeometry(0.058, 20);
 
-    function buildPiece(symbol: string): THREE.Group {
+    function buildPiece(symbol: string, sq?: string): THREE.Group {
       const t = symbol.toLowerCase() as PieceType;
       const white = symbol === symbol.toUpperCase();
       const g = new THREE.Group();
@@ -188,7 +188,7 @@
           g.add(mane);
         }
       }
-      // Gesicht zur Kamera-Seite (+z)
+      // Gesicht zunächst nach +z, die ganze Figur wird unten in ihre Zugrichtung gedreht
       const face = new THREE.Group();
       const h = faceHeight[t], rad = faceRadius[t];
       const eyeMat = white ? mats.eyeDark : mats.eyeLight;
@@ -216,10 +216,16 @@
           face.add(ch);
         }
       }
-      if (t !== "n") face.rotation.y = camAngle;
       g.add(face);
-      g.userData.face = face;
-      if (t === "n") g.rotation.y = white ? 0 : Math.PI; // Springer schauen zur Brettmitte
+      // Jede Figur schaut nach vorne, also zum Gegner: Weiß Richtung Reihe 8 (-z), Schwarz Richtung Reihe 1 (+z).
+      // Springer schräg nach vorne zur Brettmitte, sonst sieht man nur die flache Vorder- oder Rückseite.
+      // Der Springerkopf zeigt in seiner Geometrie nach -x; die Drehung um θ bringt ihn nach (-cos θ, sin θ).
+      const fwd = white ? -1 : 1;
+      if (t === "n") {
+        const toCenter = sq && sqPos(sq).x > 0 ? -1 : 1;
+        const a = (40 * Math.PI) / 180;
+        g.rotation.y = Math.atan2(fwd * Math.cos(a), -toCenter * Math.sin(a));
+      } else g.rotation.y = white ? Math.PI : 0;
       return g;
     }
 
@@ -235,7 +241,7 @@
         const p = game.grid[r][c];
         if (!p) continue;
         const sq = squareName(r, c);
-        const m = buildPiece(p);
+        const m = buildPiece(p, sq);
         m.position.copy(sqPos(sq));
         meshBySquare.set(sq, m);
         pieceGroup.add(m);
@@ -378,14 +384,11 @@
     }
 
     // Kamera
-    let camAngle = 0;
     function placeCamera(flipped: boolean) {
       const z = flipped ? -1 : 1;
       camera.position.set(0, 14.2, 10 * z);
       controls.target.set(0, 0, 0.45 * z);
       controls.update();
-      camAngle = flipped ? Math.PI : 0;
-      for (const [sq, m] of meshBySquare) if (game.pieceAt(sq).toLowerCase() !== "n") m.userData.face.rotation.y = camAngle;
     }
 
     function resize() {
