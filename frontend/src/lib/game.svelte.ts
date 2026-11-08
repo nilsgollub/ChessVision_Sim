@@ -1,6 +1,7 @@
 import { api, type GameSummary, type HistoryMove, type MoveInfo, type TopMove } from "./api";
 import { START_FEN, normalizeFen, parseFen, rebuildFen, squareName, squareRC, type Grid } from "./chess";
 import { pieceInfo, sanDe } from "./pieces";
+import { play, soundLog } from "./sound";
 
 export type Tab = "spielen" | "scannen" | "korrigieren" | "partien" | "mehr";
 export type SaveState = "idle" | "saving" | "saved" | "error";
@@ -271,6 +272,7 @@ class Game {
       const res = await api.makeMove(this.fen, from, to);
       if (!res.legal) {
         this.setStatus("So darf diese Figur nicht ziehen.", "warn");
+        play("nope");
         this.selected = null;
         this.targets = [];
         return;
@@ -289,6 +291,7 @@ class Game {
   }
 
   private announce(move?: MoveInfo, check?: boolean, over?: boolean, result?: string | null) {
+    play(over ? (result === "1/2-1/2" ? "draw" : "win") : check ? "check" : move?.capture ? "capture" : "move");
     if (over) {
       this.setStatus(result === "1/2-1/2" ? "Unentschieden!" : `Schachmatt! ${result === "1-0" ? "Weiß" : "Schwarz"} gewinnt.`, "good");
     } else if (check) {
@@ -360,4 +363,4 @@ class Game {
 export const game = new Game();
 
 // Für Tests und zum Nachschauen in der Konsole.
-(window as unknown as { brettfreunde: unknown }).brettfreunde = { getFen: () => game.fen, game };
+(window as unknown as { brettfreunde: unknown }).brettfreunde = { getFen: () => game.fen, game, soundLog };
