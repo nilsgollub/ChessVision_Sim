@@ -1,0 +1,52 @@
+{
+  "datasets": [
+    "dopaul/chess-pieces-merged (nur chess_pieces_dominique)",
+    "Francesco/chess-pieces-mjzgj"
+  ],
+  "images": {
+    "dominique/train": 220,
+    "dominique/val": 45,
+    "dominique/test": 13,
+    "rf100/train": 202,
+    "rf100/val": 28,
+    "rf100/test": 58
+  },
+  "epochs": 100,
+  "imgsz": 640,
+  "val": {
+    "mAP50": 0.977425454224467,
+    "mAP50-95": 0.8120326240579924,
+    "per_class_mAP50-95": {
+      "black-bishop": 0.8136108460029986,
+      "black-king": 0.8279163258621279,
+      "black-knight": 0.8537973303535857,
+      "black-pawn": 0.8314302323453919,
+      "black-queen": 0.8453927802975718,
+      "black-rook": 0.8142853545024161,
+      "white-bishop": 0.7837251439697505,
+      "white-king": 0.7859676632170961,
+      "white-knight": 0.8147593388414179,
+      "white-pawn": 0.8112408770363878,
+      "white-queen": 0.780690527825375,
+      "white-rook": 0.7815750684417859
+    }
+  },
+  "test": {
+    "mAP50": 0.9725880178327362,
+    "mAP50-95": 0.7911408341801899,
+    "per_class_mAP50-95": {
+      "black-bishop": 0.735024568687422,
+      "black-king": 0.8179691209159274,
+      "black-knight": 0.8272347331051714,
+      "black-pawn": 0.7884755652372711,
+      "black-queen": 0.7537292626728109,
+      "black-rook": 0.7959398113303406,
+      "white-bishop": 0.7517867252771755,
+      "white-king": 0.8560937721737281,
+      "white-knight": 0.7530946183923605,
+      "white-pawn": 0.7831693122973473,
+      "white-queen": 0.8294341776644408,
+      "white-rook": 0.8017383424082833
+    }
+  }
+}
