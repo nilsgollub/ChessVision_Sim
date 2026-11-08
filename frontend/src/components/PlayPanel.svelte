@@ -58,11 +58,15 @@
   .switch input:checked + .track { background: var(--mint); }
   .switch input:checked + .track .knob { transform: translateX(20px); }
   .switch input:focus-visible + .track { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .levels { border: 0; padding: 0; margin: 0; }
+  .levels { border: 0; padding: 0; margin: 0; min-width: 0; }
   legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
   .seg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--ground); padding: 4px; border-radius: 16px; }
   .seg label { position: relative; text-align: center; font-size: 0.82rem; font-weight: 700; padding: 10px 2px; border-radius: 12px; cursor: pointer; min-height: 40px; display: grid; place-items: center; color: var(--ink-soft); }
   .seg label.on { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(42,47,90,.12); }
   .seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
   .seg label:has(input:focus-visible) { outline: 3px solid var(--focus); }
+  @container (max-width: 330px) {
+    .actions { grid-template-columns: 1fr; }
+    .seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
 </style>

@@ -215,6 +215,25 @@ def test_capture_animation_in_3d(browser, server_url):
     pg.close()
 
 
+@pytest.mark.parametrize("size", [(844, 390), (740, 360)])
+def test_phone_landscape_layout(browser, server_url, size):
+    clear_games(server_url)
+    w, h = size
+    pg = browser.new_page(viewport={"width": w, "height": h})
+    pg.goto(server_url)
+    pg.click("[data-testid=view-2d]")
+    pg.wait_for_selector("[data-square=a1]")
+    board = pg.locator(".board-frame").bounding_box()
+    assert board["y"] >= 0 and board["y"] + board["height"] <= h + 1, "Brett muss ganz sichtbar sein"
+    assert abs(board["width"] - board["height"]) < 2
+    # Nichts in der Bedienspalte ragt über den Bildschirm hinaus, Knöpfe sind erreichbar
+    overflow = pg.evaluate("""() => [...document.querySelectorAll('.side *')]
+        .filter(el => el.getBoundingClientRect().right > innerWidth + 1).length""")
+    assert overflow == 0
+    pg.click("text=Tipp holen")
+    pg.close()
+
+
 def test_three_d_board_moves_by_tap(browser, server_url):
     clear_games(server_url)
     pg = browser.new_page(viewport={"width": 390, "height": 844})

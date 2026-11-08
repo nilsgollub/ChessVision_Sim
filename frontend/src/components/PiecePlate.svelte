@@ -44,4 +44,8 @@
   .note { margin: 0; font-size: 0.98rem; line-height: 1.35; }
   .note.bad { color: var(--bad); font-weight: 700; }
   @media (prefers-reduced-motion: reduce) { .bump { animation: none; } }
+  @container (max-width: 300px) {
+    .plate { grid-template-columns: 1fr; padding: 10px 12px; }
+    .portrait { display: none; }
+  }
 </style>

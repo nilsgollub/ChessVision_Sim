@@ -143,4 +143,9 @@
   .small.icon { width: 40px; padding: 0; display: grid; place-items: center; }
   .small.danger { background: var(--bad); color: #fff; box-shadow: none; }
   .empty { margin: 0; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.4; }
+  @container (max-width: 330px) {
+    .actions { grid-template-columns: 1fr; }
+    .list li { grid-template-columns: 56px 1fr; }
+    .thumb { width: 56px; height: 56px; }
+  }
 </style>

@@ -102,7 +102,7 @@
   .board-frame { aspect-ratio: 1; border-radius: 22px; background: var(--frame); padding: 8px; box-shadow: 0 10px 28px rgba(42, 47, 90, 0.16); }
   .board-frame.three { padding: 0; background: var(--sprinkle), radial-gradient(120% 90% at 50% 30%, #fff 0%, var(--ground-deep) 100%); background-size: 120px 120px, 120px 120px, 120px 120px, 120px 120px, 120px 120px, 120px 120px, auto; overflow: hidden; }
 
-  .side { display: grid; gap: 12px; align-content: start; }
+  .side { display: grid; gap: 12px; align-content: start; container-type: inline-size; min-width: 0; }
 
   .nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(5, 1fr);
@@ -124,5 +124,37 @@
       grid-template-columns: 1fr; gap: 6px; border-radius: 22px; padding: 10px 8px; box-shadow: 0 6px 20px rgba(42, 47, 90, 0.1);
     }
     .nav button { min-height: 72px; }
+  }
+
+  /* Handy quer: wenig Höhe. Leiste links, Brett so hoch wie der Bildschirm, rechts der Bedienbereich mit eigenem Scrollen. */
+  @media (orientation: landscape) and (max-height: 620px) {
+    .app {
+      height: 100dvh; min-height: 0; max-width: none; overflow: hidden;
+      grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 10px;
+      padding: 0 max(8px, env(safe-area-inset-right)) 0 max(6px, env(safe-area-inset-left));
+    }
+    .main { display: contents; }
+    .nav {
+      position: static; grid-column: 1; grid-row: 1 / 3; align-self: center; transform: none; width: auto; margin: 0;
+      grid-template-columns: 1fr; gap: 2px; padding: 6px 4px; border-radius: 20px; box-shadow: 0 4px 14px rgba(42, 47, 90, 0.1);
+    }
+    .nav button { min-height: 0; padding: 4px 6px; font-size: 0.66rem; gap: 0; }
+    .nav-icon { width: 36px; height: 26px; }
+
+    .board-area { grid-column: 2; grid-row: 1 / 3; display: grid; grid-template-columns: auto auto; gap: 8px; align-items: center; padding: 8px 0; }
+    .board-tools { flex-direction: column; margin: 0; gap: 8px; order: 2; align-self: stretch; justify-content: space-between; }
+    .eval-words { display: none; }
+    .view-seg { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    .view-seg button { min-width: 44px; }
+    .board-row { order: 1; height: calc(100dvh - 16px); grid-template-columns: 10px auto; gap: 6px; }
+    .board-frame { height: 100%; aspect-ratio: 1; border-radius: 18px; padding: 6px; }
+
+    .top { grid-column: 3; grid-row: 1; padding: 8px 4px 4px; }
+    h1 { font-size: 1.45rem; }
+    .sparkle { width: 16px; height: 16px; margin-top: -4px; }
+    .side { grid-column: 3; grid-row: 2; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 4px 4px 12px; position: static; display: flex; flex-direction: column; }
+    .side > :global(*) { flex-shrink: 0; }
+    .top { min-width: 0; }
+    h1 { white-space: nowrap; }
   }
 </style>

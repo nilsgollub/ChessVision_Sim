@@ -51,10 +51,14 @@
   .pal { display: grid; place-items: center; min-height: 52px; border-radius: 14px; border: 2px solid transparent; background: var(--soft, var(--ground)); padding: 2px; }
   .pal.on { border-color: var(--ribbon, var(--ink)); box-shadow: 0 0 0 2px #fff inset; }
   .erase { display: flex; gap: 8px; align-items: center; justify-content: center; font-weight: 700; background: var(--ground); }
-  .turn { border: 0; margin: 0; padding: 0; }
+  .turn { border: 0; margin: 0; padding: 0; min-width: 0; }
   legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
   .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #fff; padding: 4px; border-radius: 16px; box-shadow: inset 0 0 0 2px var(--line); }
   .seg button { min-height: 44px; border-radius: 12px; border: 0; background: transparent; font-weight: 700; color: var(--ink-soft); }
   .seg button.on { background: var(--ink); color: #fff; }
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @container (max-width: 330px) {
+    .actions { grid-template-columns: 1fr; }
+    .row { grid-template-columns: repeat(3, 1fr); }
+  }
 </style>
