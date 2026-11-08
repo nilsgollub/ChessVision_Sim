@@ -13,6 +13,7 @@ from typing import List
 import json
 
 from vision_engine import ChessVisionEngine
+from games_store import GameIn, GameStore
 
 app = FastAPI(title="Chess Vision & Sim Backend")
 
@@ -53,6 +54,23 @@ def find_stockfish():
 class EngineRequest(BaseModel):
     fen: str
     think_time_sec: float = 0.8
+    multipv: int = 3
+
+
+class PlayRequest(BaseModel):
+    fen: str
+    level: int = 3  # 1 (Anfänger) bis 5 (volle Stärke)
+
+
+# Spielstärken für den KI-Gegner. UCI_Elo geht bei Stockfish erst ab 1320 los,
+# darunter hilft nur "Skill Level" (0-20) plus kurze Bedenkzeit.
+ENGINE_LEVELS = {
+    1: {"label": "Anfänger", "options": {"Skill Level": 0}, "time": 0.05},
+    2: {"label": "Leicht", "options": {"Skill Level": 4}, "time": 0.1},
+    3: {"label": "Mittel", "options": {"UCI_LimitStrength": True, "UCI_Elo": 1500}, "time": 0.3},
+    4: {"label": "Stark", "options": {"UCI_LimitStrength": True, "UCI_Elo": 2000}, "time": 0.5},
+    5: {"label": "Profi", "options": {}, "time": 1.0},
+}
 
 
 class MoveRequest(BaseModel):
@@ -149,14 +167,17 @@ async def api_make_move(req: MoveRequest):
     promo_move = chess.Move.from_uci(uci_str + req.promotion)
 
     if promo_move in board.legal_moves:
-        board.push(promo_move)
+        chosen = promo_move
     elif move in board.legal_moves:
-        board.push(move)
+        chosen = move
     else:
         return {"legal": False, "fen": req.fen, "message": "Illegaler Zug"}
+    move_info = _move_fields(board, chosen)
+    board.push(chosen)
 
     return {
         "legal": True,
+        "move": move_info,
         "fen": board.fen(),
         "is_check": board.is_check(),
         "is_game_over": board.is_game_over(),
@@ -164,9 +185,7 @@ async def api_make_move(req: MoveRequest):
     }
 
 
-@app.post("/api/engine-analyze")
-async def api_engine_analyze(req: EngineRequest):
-    """Fragt Stockfish nach dem besten Zug, der Bewertung und führt ihn optional aus."""
+def _require_stockfish() -> str:
     stockfish_path, searched = find_stockfish()
     if stockfish_path is None:
         raise HTTPException(
@@ -175,47 +194,182 @@ async def api_engine_analyze(req: EngineRequest):
                    + ", ".join(searched)
                    + ". Bitte installieren oder STOCKFISH_PATH setzen."
         )
+    return stockfish_path
 
+
+def _board_from_fen(fen: str) -> chess.Board:
     try:
-        board = chess.Board(req.fen)
+        return chess.Board(fen)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Ungültiger FEN-String: {e}")
 
-    if board.is_game_over():
-        return {"game_over": True, "fen": board.fen(), "best_move": None}
 
+def _score_fields(score: chess.engine.PovScore) -> dict:
+    white = score.white()
+    mate = white.mate()
+    cp = white.score(mate_score=100000)
+    if mate is not None:
+        eval_str = f"Matt in {abs(mate)}"
+    else:
+        eval_str = f"{(cp or 0) / 100.0:+.2f}"
+    return {"eval_cp": cp, "mate": mate, "evaluation": eval_str}
+
+
+def _move_fields(board: chess.Board, move: chess.Move) -> dict:
+    return {
+        "uci": move.uci(),
+        "san": board.san(move),
+        "from": chess.square_name(move.from_square),
+        "to": chess.square_name(move.to_square),
+        "piece": board.piece_at(move.from_square).symbol(),
+        "capture": board.is_capture(move),
+    }
+
+
+def _game_over_fields(board: chess.Board) -> dict:
+    return {
+        "game_over": True,
+        "fen": board.fen(),
+        "best_move": None,
+        "result": board.result(),
+        "checkmate": board.is_checkmate(),
+        "top_moves": [],
+    }
+
+
+@app.post("/api/engine-analyze")
+async def api_engine_analyze(req: EngineRequest):
+    """Fragt Stockfish nach den besten Zügen (MultiPV) und der Bewertung."""
+    stockfish_path = _require_stockfish()
+    board = _board_from_fen(req.fen)
+    if not board.is_valid():
+        raise HTTPException(status_code=400, detail="Diese Stellung ist nicht möglich (z.B. fehlt ein König).")
+
+    if board.is_game_over():
+        return _game_over_fields(board)
+
+    multipv = max(1, min(5, req.multipv))
     try:
         with chess.engine.SimpleEngine.popen_uci(stockfish_path) as engine:
-            info = engine.analyse(board, chess.engine.Limit(time=req.think_time_sec))
-            best_move = info.get("pv", [None])[0]
-            score_obj = info["score"].white()
-
-            if score_obj.is_mate():
-                eval_str = f"Matt in {score_obj.mate()}"
-            else:
-                cp = score_obj.score() or 0
-                eval_str = f"{cp / 100.0:+.2f}"
-
-            san_move = board.san(best_move) if best_move else ""
-            from_sq = chess.square_name(best_move.from_square) if best_move else ""
-            to_sq = chess.square_name(best_move.to_square) if best_move else ""
-
-            # FEN nach Ausführung des besten Zuges (für "Gegen KI weiterspielen")
-            board_after = board.copy()
-            if best_move:
-                board_after.push(best_move)
-
-            return {
-                "game_over": False,
-                "best_move_uci": best_move.uci() if best_move else None,
-                "best_move_san": san_move,
-                "from_sq": from_sq,
-                "to_sq": to_sq,
-                "evaluation": eval_str,
-                "fen_after_move": board_after.fen()
-            }
+            infos = engine.analyse(board, chess.engine.Limit(time=req.think_time_sec), multipv=multipv)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stockfish-Fehler: {str(e)}")
+    if not isinstance(infos, list):
+        infos = [infos]
+
+    top_moves = []
+    for rank, info in enumerate(infos, start=1):
+        pv = info.get("pv") or []
+        if not pv:
+            continue
+        top_moves.append({"rank": rank, **_move_fields(board, pv[0]), **_score_fields(info["score"])})
+
+    best = top_moves[0] if top_moves else None
+    board_after = board.copy()
+    if best:
+        board_after.push(chess.Move.from_uci(best["uci"]))
+
+    return {
+        "game_over": False,
+        "best_move_uci": best["uci"] if best else None,
+        "best_move_san": best["san"] if best else "",
+        "from_sq": best["from"] if best else "",
+        "to_sq": best["to"] if best else "",
+        "evaluation": best["evaluation"] if best else "0.00",
+        "eval_cp": best["eval_cp"] if best else 0,
+        "mate": best["mate"] if best else None,
+        "top_moves": top_moves,
+        "fen_after_move": board_after.fen(),
+    }
+
+
+@app.post("/api/engine-play")
+async def api_engine_play(req: PlayRequest):
+    """Die KI zieht in der gewählten Spielstärke (1 = Anfänger bis 5 = Profi)."""
+    stockfish_path = _require_stockfish()
+    board = _board_from_fen(req.fen)
+    if not board.is_valid():
+        raise HTTPException(status_code=400, detail="Diese Stellung ist nicht möglich (z.B. fehlt ein König).")
+    if board.is_game_over():
+        return _game_over_fields(board)
+
+    level = ENGINE_LEVELS.get(req.level, ENGINE_LEVELS[3])
+    try:
+        with chess.engine.SimpleEngine.popen_uci(stockfish_path) as engine:
+            if level["options"]:
+                engine.configure(level["options"])
+            result = engine.play(board, chess.engine.Limit(time=level["time"]))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Stockfish-Fehler: {str(e)}")
+
+    move_info = _move_fields(board, result.move)
+    board.push(result.move)
+    return {
+        "game_over": False,
+        "move": move_info,
+        "level": req.level,
+        "level_label": level["label"],
+        "fen": board.fen(),
+        "is_check": board.is_check(),
+        "is_game_over": board.is_game_over(),
+        "result": board.result() if board.is_game_over() else None,
+    }
+
+
+class FenRequest(BaseModel):
+    fen: str
+
+
+@app.post("/api/legal-moves")
+async def api_legal_moves(req: FenRequest):
+    """Alle legalen Züge der Stellung (UCI), für die Zielpunkte auf dem Brett."""
+    board = _board_from_fen(req.fen)
+    return {"moves": [m.uci() for m in board.legal_moves]}
+
+
+@app.get("/api/engine-levels")
+async def api_engine_levels():
+    return [{"level": k, "label": v["label"]} for k, v in ENGINE_LEVELS.items()]
+
+
+# --- Gespeicherte Partien ---------------------------------------------------
+
+games = GameStore(os.getenv("BRETT_DATA_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "games")))
+
+
+def _game_or_404(fn, *args):
+    try:
+        return fn(*args)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Diese Partie gibt es nicht (mehr).")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/games")
+async def api_games_list():
+    return games.list()
+
+
+@app.post("/api/games")
+async def api_games_create(data: GameIn):
+    return _game_or_404(games.create, data)
+
+
+@app.get("/api/games/{game_id}")
+async def api_games_get(game_id: str):
+    return _game_or_404(games.get, game_id)
+
+
+@app.put("/api/games/{game_id}")
+async def api_games_save(game_id: str, data: GameIn):
+    return _game_or_404(games.save, game_id, data)
+
+
+@app.delete("/api/games/{game_id}")
+async def api_games_delete(game_id: str):
+    _game_or_404(games.delete, game_id)
+    return {"deleted": game_id}
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

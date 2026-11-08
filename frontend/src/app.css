@@ -1,0 +1,71 @@
+:root {
+  --ground: #F1EEFF;
+  --ground-deep: #E2DBFF;
+  --ink: #2A2F5A;
+  --ink-soft: #565B85;
+  --line: #E4DFFA;
+  --line-strong: #CBC4EE;
+  --pink: #F2559A;
+  --pink-deep: #C6457E;
+  --mint: #1FAA7E;
+  --mint-soft: #DDF6EC;
+  --butter: #F5C24B;
+  --butter-soft: #FFF3D1;
+  --lilac: #8E6BE3;
+  --lilac-soft: #ECE5FF;
+  --bad: #C2264B;
+  --bad-soft: #FFE1E7;
+  --focus: #3D93E8;
+  --sq-light: #FFFFFF;
+  --sq-light-3d: #E9E2FF;
+  --sq-dark: #B7A9EE;
+  --sq-dark-ink: #7C6BC8;
+  --frame: #8E7AD9;
+  --frame-ink: #FFFFFF;
+  --sky: #3D93E8;
+  --sky-soft: #DFEFFF;
+  --coral: #F0784A;
+  --coral-soft: #FFE7DC;
+  --coral-deep: #B65B38;
+  /* „Sprinkle“: verstreute Zuckerperlen aus der Katalog-Welt */
+  --sprinkle:
+    radial-gradient(circle at 12% 18%, #F2559A 0 3px, transparent 3.5px),
+    radial-gradient(circle at 78% 12%, #1FAA7E 0 3px, transparent 3.5px),
+    radial-gradient(circle at 46% 62%, #F5C24B 0 3.5px, transparent 4px),
+    radial-gradient(circle at 88% 74%, #8E6BE3 0 3px, transparent 3.5px),
+    radial-gradient(circle at 24% 86%, #3D93E8 0 3px, transparent 3.5px),
+    radial-gradient(circle at 62% 34%, #F0784A 0 2.5px, transparent 3px);
+  --black-piece: #353A6E;
+  --font-display: "Fredoka", ui-rounded, system-ui, sans-serif;
+  --font-ui: "Nunito", ui-rounded, system-ui, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 1rem/1.45 var(--font-ui); -webkit-tap-highlight-color: transparent;
+}
+::selection { background: var(--pink); color: #fff; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+a { color: inherit; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 18px; border-radius: 99px; border: 0;
+  font: 600 1.05rem var(--font-display); text-decoration: none; text-align: center;
+  transition: transform 140ms ease-out, box-shadow 140ms ease-out, background 140ms;
+}
+.btn:not(:disabled):active { transform: translateY(1px) scale(0.98); }
+.btn.primary { background: var(--pink-deep); color: #fff; box-shadow: 0 6px 14px rgba(198, 69, 126, 0.32); }
+.btn.primary:not(:disabled):hover { background: #B23C71; }
+.btn.secondary { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line-strong); }
+.btn.secondary:not(:disabled):hover { box-shadow: inset 0 0 0 2px var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}

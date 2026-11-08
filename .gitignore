@@ -4,3 +4,8 @@ __pycache__/
 # YOLO-Gewichte (groß, lokal ablegen)
 *.pt
 runs/
+frontend/node_modules/
+# Impeccable: Referenzbilder und Review-Screenshots sind Arbeitsmaterial
+.impeccable/ref/
+.impeccable/review/
+data/

@@ -1,0 +1,930 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T13:34:04+00:00",
+  "title": "Design System: Brettfreunde",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Lila Grund",
+        "canonical": "#F1EEFF",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#242329",
+          "#403E48",
+          "#5E5B69",
+          "#817E8D",
+          "#A5A3AF",
+          "#CBC9D2",
+          "#EEEEF3"
+        ]
+      },
+      "ground-deep": {
+        "role": "neutral",
+        "displayName": "Tiefer Lila Grund",
+        "canonical": "#E2DBFF",
+        "tonalRamp": [
+          "#0B0A11",
+          "#25222F",
+          "#413C51",
+          "#5F5976",
+          "#827B9B",
+          "#A5A0BA",
+          "#CBC8DA",
+          "#EFEDF8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Indigo-Tinte",
+        "canonical": "#2A2F5A",
+        "tonalRamp": [
+          "#090A15",
+          "#1F2237",
+          "#383D5D",
+          "#535A87",
+          "#747CAE",
+          "#9AA2C9",
+          "#C3C9E5",
+          "#EAEEFE"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Gedämpfte Tinte",
+        "canonical": "#565B85",
+        "tonalRamp": [
+          "#090A14",
+          "#202235",
+          "#3A3D5A",
+          "#555A82",
+          "#777CA9",
+          "#9DA2C5",
+          "#C5C9E2",
+          "#EBEDFC"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Kontur",
+        "canonical": "#E4DFFA",
+        "tonalRamp": [
+          "#0B0A0F",
+          "#24222D",
+          "#403D4D",
+          "#5E5A70",
+          "#817C95",
+          "#A5A2B5",
+          "#CBC8D6",
+          "#EFEDF5"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Starke Kontur",
+        "canonical": "#CBC4EE",
+        "tonalRamp": [
+          "#0B0A12",
+          "#242132",
+          "#403C55",
+          "#5E587B",
+          "#817AA1",
+          "#A5A0BF",
+          "#CBC7DD",
+          "#EEEDFA"
+        ]
+      },
+      "pink": {
+        "role": "primary",
+        "displayName": "Kaugummi-Pink",
+        "canonical": "#F2559A",
+        "tonalRamp": [
+          "#1D000C",
+          "#470125",
+          "#760341",
+          "#A90660",
+          "#D63982",
+          "#EE78A6",
+          "#FFAECC",
+          "#FFDEEF"
+        ]
+      },
+      "pink-deep": {
+        "role": "primary",
+        "displayName": "Himbeere",
+        "canonical": "#C6457E",
+        "tonalRamp": [
+          "#1B020C",
+          "#430A25",
+          "#6F1741",
+          "#A02560",
+          "#CB4A83",
+          "#E580A6",
+          "#FBB3CC",
+          "#FFE1EF"
+        ]
+      },
+      "pink-soft": {
+        "role": "primary",
+        "displayName": "Pink-Hauch",
+        "canonical": "#FFE3EF",
+        "tonalRamp": [
+          "#0F090C",
+          "#2B2125",
+          "#4B3A42",
+          "#6D5660",
+          "#917883",
+          "#B29EA7",
+          "#D4C6CC",
+          "#F4ECEF"
+        ]
+      },
+      "lilac": {
+        "role": "secondary",
+        "displayName": "Flieder",
+        "canonical": "#8E6BE3",
+        "tonalRamp": [
+          "#0D051F",
+          "#28174B",
+          "#462C7C",
+          "#6642B1",
+          "#8965DD",
+          "#AA93EF",
+          "#CDBFFF",
+          "#F0E8FF"
+        ]
+      },
+      "lilac-soft": {
+        "role": "secondary",
+        "displayName": "Flieder-Hauch",
+        "canonical": "#ECE5FF",
+        "tonalRamp": [
+          "#0C0A0F",
+          "#25222C",
+          "#413D4C",
+          "#605A6F",
+          "#827C93",
+          "#A6A1B4",
+          "#CCC8D5",
+          "#EFEDF5"
+        ]
+      },
+      "sky": {
+        "role": "secondary",
+        "displayName": "Himmel",
+        "canonical": "#3D93E8",
+        "tonalRamp": [
+          "#000B1D",
+          "#002448",
+          "#004078",
+          "#005EAC",
+          "#2B83D7",
+          "#6CA9EA",
+          "#A5CFFD",
+          "#D9F1FF"
+        ]
+      },
+      "sky-soft": {
+        "role": "secondary",
+        "displayName": "Himmel-Hauch",
+        "canonical": "#DFEFFF",
+        "tonalRamp": [
+          "#090C0F",
+          "#1F252B",
+          "#37414A",
+          "#525F6C",
+          "#748290",
+          "#9BA6B1",
+          "#C3CCD4",
+          "#EAEFF4"
+        ]
+      },
+      "mint": {
+        "role": "tertiary",
+        "displayName": "Minze",
+        "canonical": "#1FAA7E",
+        "tonalRamp": [
+          "#001007",
+          "#002E1C",
+          "#004F33",
+          "#00734C",
+          "#00986D",
+          "#62B896",
+          "#A1D9C0",
+          "#D7F7E8"
+        ]
+      },
+      "mint-soft": {
+        "role": "tertiary",
+        "displayName": "Minz-Hauch",
+        "canonical": "#DDF6EC",
+        "tonalRamp": [
+          "#080C0B",
+          "#1D2623",
+          "#35443E",
+          "#4E635B",
+          "#70867D",
+          "#98A9A2",
+          "#C1CEC9",
+          "#E9F0ED"
+        ]
+      },
+      "butter": {
+        "role": "tertiary",
+        "displayName": "Butter",
+        "canonical": "#F5C24B",
+        "tonalRamp": [
+          "#130900",
+          "#342000",
+          "#593900",
+          "#815400",
+          "#A77700",
+          "#C49F4D",
+          "#E1C792",
+          "#FCEDCE"
+        ]
+      },
+      "butter-soft": {
+        "role": "tertiary",
+        "displayName": "Butter-Hauch",
+        "canonical": "#FFF3D1",
+        "tonalRamp": [
+          "#0D0B05",
+          "#282417",
+          "#463F2B",
+          "#675D41",
+          "#8A8061",
+          "#ADA48C",
+          "#D0CAB9",
+          "#F2EEE4"
+        ]
+      },
+      "ribbon-king": {
+        "role": "tertiary",
+        "displayName": "Honig (Königs-Bändchen)",
+        "canonical": "#E9A92A",
+        "tonalRamp": [
+          "#150800",
+          "#381D00",
+          "#5E3500",
+          "#884F00",
+          "#AF7200",
+          "#CB9C4A",
+          "#E6C591",
+          "#FFECCD"
+        ]
+      },
+      "honey-deep": {
+        "role": "tertiary",
+        "displayName": "Honig tief",
+        "canonical": "#976D1B",
+        "tonalRamp": [
+          "#120900",
+          "#322000",
+          "#563A00",
+          "#7C5500",
+          "#A27829",
+          "#C09F69",
+          "#DEC7A2",
+          "#FAEDD7"
+        ]
+      },
+      "lilac-deep": {
+        "role": "secondary",
+        "displayName": "Flieder tief",
+        "canonical": "#8161CE",
+        "tonalRamp": [
+          "#0D061D",
+          "#281948",
+          "#452E77",
+          "#6545AB",
+          "#8868D6",
+          "#A995EA",
+          "#CDC0FD",
+          "#F0E9FF"
+        ]
+      },
+      "sky-deep": {
+        "role": "secondary",
+        "displayName": "Himmel tief",
+        "canonical": "#3177BB",
+        "tonalRamp": [
+          "#010C1A",
+          "#062542",
+          "#0F416F",
+          "#1B609F",
+          "#3E84C9",
+          "#76A9DF",
+          "#ABCEF5",
+          "#DCF1FF"
+        ]
+      },
+      "mint-deep": {
+        "role": "tertiary",
+        "displayName": "Minze tief",
+        "canonical": "#188462",
+        "tonalRamp": [
+          "#000F08",
+          "#002C1E",
+          "#004D36",
+          "#006F50",
+          "#309471",
+          "#71B599",
+          "#A9D7C2",
+          "#DBF6E9"
+        ]
+      },
+      "coral-deep": {
+        "role": "tertiary",
+        "displayName": "Koralle tief",
+        "canonical": "#B65B38",
+        "tonalRamp": [
+          "#180501",
+          "#3E1707",
+          "#682B12",
+          "#95411F",
+          "#BF6340",
+          "#D99075",
+          "#F1BDAA",
+          "#FFE7DB"
+        ]
+      },
+      "coral": {
+        "role": "tertiary",
+        "displayName": "Koralle",
+        "canonical": "#F0784A",
+        "tonalRamp": [
+          "#1B0300",
+          "#431100",
+          "#702200",
+          "#A13400",
+          "#CC5728",
+          "#E48967",
+          "#FAB9A1",
+          "#FFE5D6"
+        ]
+      },
+      "coral-soft": {
+        "role": "tertiary",
+        "displayName": "Koralle-Hauch",
+        "canonical": "#FFE7DC",
+        "tonalRamp": [
+          "#0F0A08",
+          "#2B221E",
+          "#4A3C36",
+          "#6C5950",
+          "#907B71",
+          "#B2A199",
+          "#D4C8C2",
+          "#F4EDE9"
+        ]
+      },
+      "bad": {
+        "role": "error",
+        "displayName": "Fehler-Rot",
+        "canonical": "#C2264B",
+        "tonalRamp": [
+          "#1D0105",
+          "#480315",
+          "#780928",
+          "#AC123D",
+          "#D93F5D",
+          "#F07B89",
+          "#FFB0B7",
+          "#FFE0E3"
+        ]
+      },
+      "bad-soft": {
+        "role": "error",
+        "displayName": "Fehler-Hauch",
+        "canonical": "#FFE1E7",
+        "tonalRamp": [
+          "#0F090B",
+          "#2C2123",
+          "#4C3A3E",
+          "#6E565B",
+          "#93787E",
+          "#B49EA3",
+          "#D5C6C9",
+          "#F5ECED"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Fokus-Himmel",
+        "canonical": "#3D93E8",
+        "tonalRamp": [
+          "#000B1D",
+          "#002448",
+          "#004078",
+          "#005EAC",
+          "#2B83D7",
+          "#6CA9EA",
+          "#A5CFFD",
+          "#D9F1FF"
+        ]
+      },
+      "sq-light": {
+        "role": "neutral",
+        "displayName": "Helles Feld 2D",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "sq-light-3d": {
+        "role": "neutral",
+        "displayName": "Helles Feld 3D",
+        "canonical": "#E9E2FF",
+        "tonalRamp": [
+          "#0C0A10",
+          "#25222D",
+          "#413D4E",
+          "#5F5971",
+          "#827C96",
+          "#A6A1B6",
+          "#CBC8D7",
+          "#EFEDF6"
+        ]
+      },
+      "sq-dark": {
+        "role": "neutral",
+        "displayName": "Lavendel-Feld",
+        "canonical": "#B7A9EE",
+        "tonalRamp": [
+          "#0C0916",
+          "#251F3A",
+          "#423862",
+          "#60528E",
+          "#8374B6",
+          "#A69CD0",
+          "#CBC5EA",
+          "#EFEBFF"
+        ]
+      },
+      "sq-dark-ink": {
+        "role": "neutral",
+        "displayName": "Koordinaten-Violett",
+        "canonical": "#7C6BC8",
+        "tonalRamp": [
+          "#0B071B",
+          "#241C44",
+          "#403371",
+          "#5E4DA2",
+          "#806FCD",
+          "#A399E2",
+          "#C9C3F7",
+          "#EDEAFF"
+        ]
+      },
+      "frame": {
+        "role": "neutral",
+        "displayName": "Brettrahmen-Violett",
+        "canonical": "#8E7AD9",
+        "tonalRamp": [
+          "#0C071B",
+          "#251C44",
+          "#423371",
+          "#604CA2",
+          "#836ECC",
+          "#A598E2",
+          "#CBC3F7",
+          "#EEEAFF"
+        ]
+      },
+      "frame-ink": {
+        "role": "neutral",
+        "displayName": "Rahmen-Schrift",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "black-piece": {
+        "role": "neutral",
+        "displayName": "Schwarze Figur",
+        "canonical": "#353A6E",
+        "tonalRamp": [
+          "#080A16",
+          "#1E223A",
+          "#373C62",
+          "#52588D",
+          "#737BB5",
+          "#99A1CF",
+          "#C2C8E9",
+          "#EAEDFF"
+        ]
+      },
+      "white-piece": {
+        "role": "neutral",
+        "displayName": "Weiße Figur 2D",
+        "canonical": "#FFFDFB",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252423",
+          "#413F3E",
+          "#5F5D5C",
+          "#82807E",
+          "#A6A4A3",
+          "#CBCAC9",
+          "#EFEEEE"
+        ]
+      },
+      "vinyl-white-3d": {
+        "role": "neutral",
+        "displayName": "Vinyl-Creme 3D",
+        "canonical": "#F6ECDF",
+        "tonalRamp": [
+          "#0D0B08",
+          "#27231E",
+          "#453F37",
+          "#645C52",
+          "#887F73",
+          "#AAA39A",
+          "#CFCAC3",
+          "#F1EEEA"
+        ]
+      },
+      "last-move-light": {
+        "role": "neutral",
+        "displayName": "Letzter Zug hell",
+        "canonical": "#FFEDB0",
+        "tonalRamp": [
+          "#0F0B02",
+          "#2B230A",
+          "#4A3F17",
+          "#6C5D25",
+          "#907F46",
+          "#B1A479",
+          "#D3CBAD",
+          "#F4EFDD"
+        ]
+      },
+      "last-move-dark": {
+        "role": "neutral",
+        "displayName": "Letzter Zug dunkel",
+        "canonical": "#F1CF6E",
+        "tonalRamp": [
+          "#110A00",
+          "#302200",
+          "#523C00",
+          "#775900",
+          "#9C7C00",
+          "#BBA25D",
+          "#DACA9B",
+          "#F8EED3"
+        ]
+      },
+      "muted-ribbon": {
+        "role": "neutral",
+        "displayName": "Geschlagen-Bändchen",
+        "canonical": "#B9B7C9",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#24232A",
+          "#3F3E49",
+          "#5D5B6B",
+          "#807E8F",
+          "#A4A3B0",
+          "#CAC9D3",
+          "#EEEEF3"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Geschlagen-Kontur",
+        "canonical": "#8C8AA0",
+        "tonalRamp": [
+          "#0B0A0F",
+          "#24232C",
+          "#3F3E4C",
+          "#5D5B6F",
+          "#7F7D93",
+          "#A4A2B4",
+          "#CAC9D5",
+          "#EEEDF5"
+        ]
+      },
+      "muted-body": {
+        "role": "neutral",
+        "displayName": "Geschlagen-Körper",
+        "canonical": "#F2F1F6",
+        "tonalRamp": [
+          "#0B0B0C",
+          "#242426",
+          "#403F42",
+          "#5E5D61",
+          "#807F84",
+          "#A5A4A7",
+          "#CACACC",
+          "#EEEEF0"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Kartenweiß",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Wortmarke",
+        "purpose": "Nur „Brettfreunde“ in der Kopfzeile."
+      },
+      "headline": {
+        "displayName": "Namensschild",
+        "purpose": "Figurenname bzw. „ist dran“ auf der Plakette."
+      },
+      "title": {
+        "displayName": "Knopf und Überschrift",
+        "purpose": "Knöpfe, Kartenüberschriften, Rangziffern."
+      },
+      "body": {
+        "displayName": "Fließtext",
+        "purpose": "Hinweise, Zug-Sätze, Rangzeilen."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Tabs, Pillen, Bewertung in Worten, KI-Stufen."
+      },
+      "mono": {
+        "displayName": "FEN",
+        "purpose": "Ausschließlich die FEN-Zeile."
+      }
+    },
+    "shadows": [
+      {
+        "name": "contour",
+        "value": "inset 0 0 0 2px var(--line)",
+        "purpose": "Karten, Pillen, Segmente, Fach in Ruhe."
+      },
+      {
+        "name": "stage",
+        "value": "0 10px 28px rgba(42, 47, 90, 0.16)",
+        "purpose": "Nur der Brettrahmen."
+      },
+      {
+        "name": "plate",
+        "value": "0 6px 18px rgba(42, 47, 90, 0.1)",
+        "purpose": "Namensplakette."
+      },
+      {
+        "name": "rank-card",
+        "value": "0 4px 14px rgba(42, 47, 90, 0.08), inset 0 0 0 2px var(--line)",
+        "purpose": "Top-3-Karten."
+      },
+      {
+        "name": "nav-bar",
+        "value": "0 -6px 20px rgba(42, 47, 90, 0.1)",
+        "purpose": "Navigationsleiste unten (Desktop: 0 6px 20px)."
+      },
+      {
+        "name": "candy-glow",
+        "value": "0 6px 14px rgba(198, 69, 126, 0.32)",
+        "purpose": "Nur der primäre Knopf."
+      },
+      {
+        "name": "seg-raised",
+        "value": "0 2px 6px rgba(42, 47, 90, 0.12)",
+        "purpose": "Aktive Stufe im lila Segment."
+      },
+      {
+        "name": "sprinkle",
+        "value": "var(--sprinkle) über radial-gradient(120% 90% at 50% 30%, #fff 0%, var(--ground-deep) 100%), Kachel 120px",
+        "purpose": "Konfetti-Bühne hinter dem 3D-Brett."
+      }
+    ],
+    "motion": [
+      {
+        "name": "hop",
+        "value": "420ms cubic-bezier(.3, 1.6, .5, 1); 0% 0, 40% -14px, 100% 0",
+        "purpose": "Signatur: Hüpfer der gewählten Figur (2D und 3D)."
+      },
+      {
+        "name": "plate-bump",
+        "value": "380ms cubic-bezier(.3, 1.5, .5, 1); von translateY(6px) scale(.98)",
+        "purpose": "Plakette springt bei Auswahl ein."
+      },
+      {
+        "name": "piece-move",
+        "value": "380ms Bogen (Springer 0.9, sonst 0.35 Einheiten hoch)",
+        "purpose": "Figurenzug im 3D-Brett."
+      },
+      {
+        "name": "press",
+        "value": "140ms ease-out; translateY(1px) scale(0.98)",
+        "purpose": "Knopfdruck."
+      },
+      {
+        "name": "state",
+        "value": "180ms",
+        "purpose": "Tab-Pille, Schalter-Spur."
+      },
+      {
+        "name": "knob",
+        "value": "200ms cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Schalterknopf."
+      },
+      {
+        "name": "eval",
+        "value": "360ms cubic-bezier(.2, .9, .3, 1)",
+        "purpose": "Bewertungsbalken."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0ms",
+        "purpose": "Alle Übergänge und Animationen bei prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "desktop",
+        "value": "960px"
+      },
+      {
+        "name": "max-width",
+        "value": "1180px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primärknopf",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ein Hauptknopf pro Schritt (Tipp holen, Foto wählen, Scannen).",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z\"/></svg> Tipp holen</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 18px;border-radius:99px;border:0;font:600 1.05rem var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);cursor:pointer;transition:transform 140ms ease-out,box-shadow 140ms ease-out,background 140ms;} .ds-btn:active{transform:translateY(1px) scale(0.98);} .ds-btn:focus-visible{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;} .ds-btn-primary{background:var(--pink-deep,#C6457E);color:#fff;box-shadow:0 6px 14px rgba(198,69,126,0.32);} .ds-btn-primary:hover{background:#B23C71;}"
+    },
+    {
+      "name": "Sekundärknopf",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Gleichrangige Nebenaktion neben dem Hauptknopf (KI zieht, FEN kopieren).",
+      "html": "<button class=\"ds-btn ds-btn-secondary\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z\"/></svg> KI zieht</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 18px;border-radius:99px;border:0;font:600 1.05rem var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);cursor:pointer;transition:transform 140ms ease-out,box-shadow 140ms ease-out,background 140ms;} .ds-btn:active{transform:translateY(1px) scale(0.98);} .ds-btn:focus-visible{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;} .ds-btn-secondary{background:#fff;color:var(--ink,#2A2F5A);box-shadow:inset 0 0 0 2px var(--line-strong,#CBC4EE);} .ds-btn-secondary:hover{box-shadow:inset 0 0 0 2px var(--ink,#2A2F5A);}"
+    },
+    {
+      "name": "Ansicht-Segment 3D/2D",
+      "kind": "chip",
+      "refersTo": "segment-on",
+      "description": "Weiße Pillenspur mit Kontur, aktiver Teil in Tinte.",
+      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"Ansicht\"><button class=\"ds-seg-on\" aria-pressed=\"true\">3D</button><button aria-pressed=\"false\">2D</button></div>",
+      "css": ".ds-seg{display:inline-grid;grid-template-columns:1fr 1fr;background:#fff;border-radius:99px;padding:3px;box-shadow:inset 0 0 0 2px var(--line,#E4DFFA);} .ds-seg button{min-width:52px;min-height:40px;border:0;border-radius:99px;background:transparent;font:600 0.95rem var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);color:var(--ink-soft,#565B85);cursor:pointer;} .ds-seg button:hover{color:var(--ink,#2A2F5A);} .ds-seg button:focus-visible{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;} .ds-seg .ds-seg-on{background:var(--ink,#2A2F5A);color:#fff;}"
+    },
+    {
+      "name": "Status-Pille",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Zug-Nummer bzw. „rechnet …“ in der Kopfzeile.",
+      "html": "<p class=\"ds-pill\">Zug 2</p> <p class=\"ds-pill ds-pill-busy\">rechnet …</p>",
+      "css": ".ds-pill{display:inline-block;margin:0 6px 0 0;font:700 0.85rem var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);color:var(--ink,#2A2F5A);background:#fff;border-radius:99px;padding:6px 12px;box-shadow:inset 0 0 0 2px var(--line,#E4DFFA);} .ds-pill-busy{background:var(--butter-soft,#FFF3D1);}"
+    },
+    {
+      "name": "Namensplakette",
+      "kind": "custom",
+      "refersTo": "name-plate",
+      "description": "Signatur: gewählte Figur mit Porträtring, Namensschild, Figurenart-Pille und Zug-Satz; springt bei Auswahl ein.",
+      "html": "<section class=\"ds-plate\" style=\"--soft:#DDF6EC;--ribbon:#1FAA7E;--deep:#188462\"><div class=\"ds-portrait\"><svg width=\"56\" height=\"56\" viewBox=\"0 0 100 100\" aria-hidden=\"true\"><path d=\"M31 75 C31 66 34 61 39 57 C32 57 24 55 21 49 C18 43 22 37 28 35 C32 29 37 23 42 20 L43 10 L50 17 C63 17 73 28 73 43 C73 56 69 64 69 75 Z\" fill=\"#FFFDFB\" stroke=\"#2A2F5A\" stroke-width=\"3.4\" stroke-linejoin=\"round\"/><rect x=\"20\" y=\"80\" width=\"60\" height=\"12\" rx=\"6\" fill=\"#FFFDFB\" stroke=\"#2A2F5A\" stroke-width=\"3.4\"/><rect x=\"28\" y=\"72\" width=\"44\" height=\"9\" rx=\"4.5\" fill=\"#1FAA7E\" stroke=\"#2A2F5A\" stroke-width=\"3\"/><ellipse cx=\"44\" cy=\"33\" rx=\"3\" ry=\"3.6\" fill=\"#2A2F5A\"/></svg></div><div><p class=\"ds-name\"><span class=\"ds-tag\">Fritzi</span><span class=\"ds-kind\">Weißer Springer · g1</span></p><p class=\"ds-note\">Springt im L und hüpft über alle drüber.</p></div></section>",
+      "css": ".ds-plate{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--soft);border:2px solid #fff;border-radius:22px;padding:10px 14px 10px 10px;box-shadow:0 6px 18px rgba(42,47,90,0.1);min-height:88px;color:var(--ink,#2A2F5A);font-family:var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);animation:ds-bump 380ms cubic-bezier(.3,1.5,.5,1);} @keyframes ds-bump{0%{transform:translateY(6px) scale(.98);}100%{transform:none;}} .ds-portrait{background:#fff;border-radius:18px;padding:4px;box-shadow:0 0 0 3px var(--ribbon);} .ds-name{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 4px;} .ds-tag{font:700 1.2rem/1.2 var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);background:var(--deep);color:#fff;border-radius:99px;padding:2px 12px;} .ds-kind{font-size:0.8rem;font-weight:700;color:#11664B;background:#fff;box-shadow:inset 0 0 0 2px #BDEBD9;border-radius:99px;padding:2px 10px;} .ds-note{margin:0;font-size:0.98rem;line-height:1.35;background:var(--butter-soft,#FFF3D1);border-radius:14px;padding:6px 10px;} @media (prefers-reduced-motion: reduce){.ds-plate{animation:none;}}"
+    },
+    {
+      "name": "Top-3-Rangkarte",
+      "kind": "card",
+      "refersTo": "rank-card",
+      "description": "Ein Kandidatenzug mit Rang-Fähnchen in Rangfarbe (1 Pink, 2 Flieder, 3 Himmel) auf dem Partner-Ton der Figur.",
+      "html": "<ol class=\"ds-ranks\"><li style=\"--rank:#F2559A;--rank-deep:#C6457E;--soft:#DDF6EC\"><span class=\"ds-ribbon\" aria-hidden=\"true\">1</span><div class=\"ds-what\"><p class=\"ds-line\"><b>Flocke</b> nach f6</p><p class=\"ds-sub\"><span class=\"ds-san\">Nf6</span> · Weiß steht etwas besser</p></div><button class=\"ds-go\">Ziehen</button></li><li style=\"--rank:#8E6BE3;--rank-deep:#8161CE;--soft:#FFE3EF\"><span class=\"ds-ribbon\" aria-hidden=\"true\">2</span><div class=\"ds-what\"><p class=\"ds-line\"><b>Mira</b> nach d5</p><p class=\"ds-sub\"><span class=\"ds-san\">Qd5</span> · Alles ausgeglichen</p></div><button class=\"ds-go\">Ziehen</button></li></ol>",
+      "css": ".ds-ranks{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-family:var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);color:var(--ink,#2A2F5A);} .ds-ranks li{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--soft);border-radius:20px;padding:10px 12px 10px 44px;box-shadow:0 4px 14px rgba(42,47,90,0.08),inset 0 0 0 2px var(--line,#E4DFFA);} .ds-ribbon{position:absolute;left:8px;top:-4px;width:26px;height:34px;background:var(--rank-deep);color:#fff;font:600 1.05rem/30px var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);text-align:center;clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);} .ds-line{margin:0;font-size:1rem;} .ds-line b{font-family:var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);font-weight:700;} .ds-sub{margin:2px 0 0;font-size:0.85rem;color:var(--ink-soft,#565B85);} .ds-san{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink,#2A2F5A);} .ds-go{min-height:44px;padding:0 14px;border-radius:99px;border:2px solid var(--rank);background:#fff;color:var(--ink,#2A2F5A);font:700 1rem var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);cursor:pointer;} .ds-go:hover{box-shadow:inset 0 0 0 1px var(--rank);} .ds-go:focus-visible{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;}"
+    },
+    {
+      "name": "Navigationsleiste",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Vier Tabs mit eigener Farbe; aktives Symbol in einer Pille im Partner-Ton.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Bereiche\"><button class=\"ds-on\" aria-current=\"page\" style=\"--tab:#F2559A;--tab-soft:#FFE3EF\"><span class=\"ds-ni\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L8.7 4.5a.8.8 0 0 0-1.2.7z\"/></svg></span><span>Spielen</span></button><button style=\"--tab:#3D93E8;--tab-soft:#DFEFFF\"><span class=\"ds-ni\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4z\"/></svg></span><span>Scannen</span></button><button style=\"--tab:#1FAA7E;--tab-soft:#DDF6EC\"><span class=\"ds-ni\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 4.5l4.5 4.5L9 19.5H4.5V15zM12.5 7l4.5 4.5\"/></svg></span><span>Korrigieren</span></button><button style=\"--tab:#8E6BE3;--tab-soft:#ECE5FF\"><span class=\"ds-ni\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h.01M12 12h.01M19 12h.01\"/></svg></span><span>Mehr</span></button></nav>",
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;padding:6px 8px 8px;box-shadow:0 -6px 20px rgba(42,47,90,0.1);border-radius:22px 22px 0 0;font-family:var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);} .ds-nav button{display:grid;justify-items:center;gap:2px;border:0;background:transparent;color:var(--ink-soft,#565B85);font-weight:700;font-size:0.78rem;min-height:56px;border-radius:16px;padding:6px 0;cursor:pointer;} .ds-nav button:hover{color:var(--ink,#2A2F5A);} .ds-nav button:focus-visible{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;} .ds-ni{color:var(--tab);display:grid;place-items:center;width:40px;height:30px;border-radius:99px;transition:background 180ms;} .ds-nav .ds-on{color:var(--ink,#2A2F5A);} .ds-nav .ds-on .ds-ni{background:var(--tab-soft);}"
+    },
+    {
+      "name": "Karte",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Weiße Karte mit innenliegender Kontur auf lila Grund (FEN, Hinweise, Gegner-Einstellungen).",
+      "html": "<section class=\"ds-card\"><h3>Stellung als FEN</h3><code>rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1</code><p class=\"ds-cnote\">Lichess ist der einzige Knopf, der die Stellung ins Internet schickt.</p></section>",
+      "css": ".ds-card{background:#fff;border-radius:20px;padding:12px 14px;box-shadow:inset 0 0 0 2px var(--line,#E4DFFA);display:grid;gap:10px;color:var(--ink,#2A2F5A);font-family:var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);} .ds-card h3{margin:0;font:600 1.05rem var(--font-display, 'Fredoka', ui-rounded, system-ui, sans-serif);} .ds-card code{font:600 0.85rem/1.4 ui-monospace,'SF Mono',Menlo,monospace;background:var(--ground,#F1EEFF);border-radius:12px;padding:8px 10px;word-break:break-all;} .ds-cnote{margin:0;font-size:0.9rem;color:var(--ink-soft,#565B85);line-height:1.4;}"
+    },
+    {
+      "name": "Schalter",
+      "kind": "input",
+      "description": "KI antwortet: Spur aus line-strong, an Minze.",
+      "html": "<label class=\"ds-switch\"><input type=\"checkbox\" checked><span class=\"ds-track\" aria-hidden=\"true\"><span class=\"ds-knob\"></span></span><span>KI antwortet nach jedem Zug</span></label>",
+      "css": ".ds-switch{display:flex;align-items:center;gap:12px;font:700 1rem var(--font-ui, 'Nunito', ui-rounded, system-ui, sans-serif);color:var(--ink,#2A2F5A);min-height:44px;cursor:pointer;} .ds-switch input{position:absolute;opacity:0;width:1px;height:1px;} .ds-track{width:48px;height:28px;border-radius:99px;background:var(--line-strong,#CBC4EE);position:relative;transition:background 180ms;flex:none;} .ds-knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(42,47,90,.25);transition:transform 200ms cubic-bezier(.22,1,.36,1);} .ds-switch input:checked + .ds-track{background:var(--mint,#1FAA7E);} .ds-switch input:checked + .ds-track .ds-knob{transform:translateX(20px);} .ds-switch input:focus-visible + .ds-track{outline:3px solid var(--focus,#3D93E8);outline-offset:2px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Der Figurenkatalog im Spielzimmer",
+    "overview": "**Creative North Star: \"Der Figurenkatalog im Spielzimmer\"**\n\nBrettfreunde ist ein Werkzeug-Bildschirm (Scannen, Korrigieren, Tipp holen) im Kleid eines Sammelfiguren-Katalogs. Jede Figur ist ein Charakter mit Namen, Gesicht und einem Bändchen in der Farbe ihres Typs; die Oberfläche drumherum ist ein lila getönter Grund mit weißen, rundum weichen Karten, Pillen und Plaketten. Das Brett ist die Bühne: im 3D-Modus glänzende Vinyl-Figuren auf einem Pastellbrett vor einem Konfetti-Hintergrund aus Zuckerperlen, im 2D-Modus dieselben Charaktere als gezeichnete Aufkleber.\n\nDie Dichte ist die eines Handy-Werkzeugs: eine Spalte, große Tippziele (Knöpfe 52 px, Navigation 56 px, Symbolknöpfe 44 px), ein rosa Hauptknopf pro Schritt. Farbe kommt aus einer festen Familie von sechs Bonbon-Tönen, jeder mit einem hellen Partner-Ton; Grau bedeutet ausschließlich „geschlagen“. Bewegung ist sparsam bis auf eine Signatur: den kleinen Hüpfer, wenn eine Figur gewählt wird.\n\nAbgelehnt ist der Kategorie-Standard von Schach-Apps: dunkle Oberfläche, grün-beiges Brett, Zahlenkolonnen. Bewertungen erscheinen in Worten („Weiß steht etwas besser“), Züge als Sätze über Figuren mit Namen.",
+    "keyCharacteristics": [
+      "Lila Grund, weiße Karten mit innenliegender 2-px-Kontur, Tinte statt Schwarz.",
+      "Sechs Bändchenfarben je Figurtyp, jeweils mit hellem Partner-Ton als Flächenfarbe.",
+      "Text auf Farbflächen immer auf der tiefen Stufe des Tons (mindestens 4.5:1 gegen Weiß).",
+      "Zwei runde Schriften: Fredoka für Namen, Überschriften und Knöpfe; Nunito für alles andere.",
+      "Alles Bedienbare ist eine Pille oder eine stark gerundete Karte.",
+      "Top 3 als nummerierte Bändchen-Karten in fester Rangfarbe (Pink, Lila, Himmel), passend zu den Pfeilen auf dem Brett.",
+      "Eine Signaturbewegung: der Hüpfer bei Auswahl."
+    ],
+    "rules": [
+      {
+        "name": "The Ribbon Rule",
+        "body": "Jeder Figurtyp besitzt drei Stufen: Bändchenfarbe, tiefe Stufe und hellen Partner. König Honig, Dame Pink, Turm Himmel, Läufer Flieder, Springer Minze, Bauer Koralle. Die Bändchenfarbe trägt alles ohne Text (Bändchen am Fuß, Porträtring, Palettenkachel, Mähne des Springers, 3D-Bändchen, Pfeile), die tiefe Stufe trägt das Namensschild, und die Fläche dahinter ist immer der Partner-Ton.",
+        "section": "colors"
+      },
+      {
+        "name": "The Deep Step Rule",
+        "body": "Schrift auf einer Farbfläche steht immer auf der tiefen Stufe des Tons, nie auf der Bändchenfarbe: weiße Schrift braucht mindestens 4.5:1. Die hellen Bändchentöne (2.1:1 bis 3.9:1 gegen Weiß) bleiben textfrei.",
+        "section": "colors"
+      },
+      {
+        "name": "The Rank Order Rule",
+        "body": "Rang 1 ist Pink, Rang 2 Flieder, Rang 3 Himmel, auf Karte und Pfeil gleich. Pfeilstärke fällt mit dem Rang (17 / 12 / 9 Einheiten auf 100er-Feldern), Deckkraft 0,9 für Rang 1, sonst 0,78. Die Ziffer im Fähnchen steht auf der tiefen Stufe der Rangfarbe.",
+        "section": "colors"
+      },
+      {
+        "name": "The Grey Means Gone Rule",
+        "body": "Grau gibt es nur für geschlagene Figuren; sie verlieren dabei Gesicht und Bändchenfarbe. Kein anderes Element wird grau eingefärbt, auch deaktivierte Knöpfe nicht (die werden auf 55 % Deckkraft gesetzt).",
+        "section": "colors"
+      },
+      {
+        "name": "The Lilac Ground Rule",
+        "body": "Der Seitengrund ist immer Lila, nie Weiß und nie dunkel. Weiß ist für Karten reserviert, Indigo für Text und kleine aktive Zustände.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Rounds Rule",
+        "body": "Fredoka spricht für die Figuren (Namen, Überschriften, Knöpfe, Zahlen auf Bändchen), Nunito für alles Erklärende. Eine dritte Schrift gibt es nur als Monospace für die FEN.",
+        "section": "typography"
+      },
+      {
+        "name": "The Words First Rule",
+        "body": "Bewertungen stehen als Satz in Label-Stärke über dem Brett; Notation (SAN) erscheint nur klein, mit Tabellenziffern, als Nebenzeile.",
+        "section": "typography"
+      },
+      {
+        "name": "The Inset Contour Rule",
+        "body": "Konturen liegen innen (inset box-shadow), nicht als Rahmen. Ein Schatten nach außen bedeutet „schwebt“ und bleibt Brett, Plakette, Rangkarten, Leiste und Hauptknopf vorbehalten. Schatten sind immer weich und indigo-getönt, nie hart versetzt.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Sprinkle Stage Rule",
+        "body": "Hinter dem 3D-Brett liegt immer die Zuckerperlen-Fläche (`--sprinkle`, sechs Perlen in den sechs Bändchentönen, Kachel 120 px) über einem radialen Verlauf von Weiß zu ground-deep. Das Konfetti gehört zur Bühne, nicht zu Karten oder Panels.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Hop Rule",
+        "body": "Die einzige ausdrucksstarke Bewegung ist der Hüpfer der gewählten Figur: in 2D 14 px hoch in 420 ms mit `cubic-bezier(.3,1.6,.5,1)`, in 3D derselbe Bogen über 420 ms, dazu das Einspringen der Plakette. Alles andere bewegt sich kurz und still (140–200 ms, ease-out). Bei `prefers-reduced-motion` entfallen alle Animationen.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** jede neue figurbezogene Fläche aus Bändchenfarbe, tiefer Stufe und Partner-Ton des Figurtyps bauen (The Ribbon Rule).",
+      "**Do** Schrift auf Farbflächen immer auf die tiefe Stufe setzen (The Deep Step Rule).",
+      "**Do** Rangfarben in der Reihenfolge Pink, Flieder, Himmel halten und Karte und Pfeil gleich färben.",
+      "**Do** Karten weiß auf lila Grund mit `inset 0 0 0 2px var(--line)` absetzen; Außenschatten nur weich und indigo-getönt.",
+      "**Do** Bedienbares als Pille (99px) mit mindestens 44 px, Hauptaktionen 52 px hoch.",
+      "**Do** Figuren mit Namen ansprechen und Bewertungen in Worten zeigen; Notation nur als Nebenzeile.",
+      "**Do** Fredoka für Namen, Überschriften und Knöpfe, Nunito für alles andere.",
+      "**Do** Bewegung auf den Hüpfer bei Auswahl konzentrieren und `prefers-reduced-motion` respektieren."
+    ],
+    "donts": [
+      "**Don't** dunkle Seitengründe, grün-beige Bretter oder Zahlenkolonnen verwenden.",
+      "**Don't** Grau für irgendetwas anderes als geschlagene Figuren einsetzen.",
+      "**Don't** neue Akzentfarben außerhalb der sechs Bändchentöne einführen.",
+      "**Don't** harte, versetzte Schatten oder Rahmenlinien statt innenliegender Konturen verwenden.",
+      "**Don't** Emoji oder Symbolschriften nutzen; Symbole sind eigene Strich-SVGs (24er Raster, Strich 2).",
+      "**Don't** Schrift auf die hellen Bändchentöne setzen; Text auf Farbe gehört auf die tiefe Stufe."
+    ]
+  }
+}

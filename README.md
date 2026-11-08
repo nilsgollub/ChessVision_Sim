@@ -1,4 +1,4 @@
-# ♟️ ChessVision Sim – Projektdokumentation
+# ♟️ Brettfreunde (ChessVision Sim) – Projektdokumentation
 
 Lokales Computer-Vision- und Schach-Simulationssystem (FastAPI + OpenCV + YOLOv8 + Stockfish) mit mobiler Android Web-App (PWA). Ermöglicht das Fotografieren eines echten Schachbretts, automatische Eckenerkennung & Perspektiventzerrung, Figurenerkennung sowie nahtloses Weiterspielen oder Zugtipps via Stockfish.
 
@@ -9,13 +9,15 @@ Lokales Computer-Vision- und Schach-Simulationssystem (FastAPI + OpenCV + YOLOv8
 ```
 ChessVision_Sim/
 ├── backend.py          # FastAPI Server, REST-Endpunkte, python-chess & Stockfish-Anbindung
+├── games_store.py    # Gespeicherte Partien (JSON-Dateien in data/games/)
 ├── vision_engine.py    # OpenCV Auto-Corner-Detection, Homographie-Entzerrung, YOLO Fußpunkt-Mapping
 ├── chess_yolov8n.pt    # (Optional) Trainiertes YOLOv8-Gewichtsmodell für die 12 Figurenklassen
+├── frontend/           # Web-App (Vite + Svelte 5 + Three.js), Quellcode
+├── PRODUCT.md          # Produktkontext (Nutzer, Zweck, Grundsätze)
 ├── requirements.txt
 ├── requirements-dev.txt  # Test-Abhängigkeiten (pytest, httpx, playwright)
 ├── tests/              # pytest: API-Tests (TestClient) und Browser-Ablauf (Playwright)
-└── static/
-    └── index.html      # Mobile Web-App (Kamera-Input, interaktive Eck-Pins, 2D-Brett, Editor & KI)
+└── static/             # Gebaute Web-App (erzeugt von `npm run build` in frontend/, nicht von Hand ändern)
 ```
 
 
@@ -72,7 +74,24 @@ python backend.py
 
 Der Server läuft standardmäßig auf `0.0.0.0:8000`.
 
-### 4. Tests
+### 4. Web-App bauen (nur nach Änderungen in `frontend/`)
+
+Die gebaute App liegt fertig in `static/`, für den normalen Betrieb reicht `python backend.py`. Nach Änderungen am Frontend:
+
+```sh
+cd frontend
+npm install
+npm run build      # schreibt nach ../static
+npm run dev        # Entwicklungsserver mit Live-Reload, leitet /api an Port 8000 weiter
+```
+
+Die App heißt **Brettfreunde**: Figuren sind Charaktere mit Namen und einem Satz, wie sie ziehen. Standard ist ein 3D-Brett (Three.js, mit dem Finger drehbar), daneben eine 2D-Ansicht für Editor und schnelles Korrigieren. Dazu Bewertungsbalken, Pfeile und Karten für die drei besten Züge, ein KI-Gegner in fünf Stufen (Anfänger bis Profi), Lichess-Export, FEN kopieren und ein Manifest für „Zum Startbildschirm hinzufügen“. Ein Service Worker fehlt bewusst: Ohne HTTPS im Heimnetz würde ihn Chrome nicht zulassen.
+
+**Partien speichern:** Jede Partie wird nach jedem Zug automatisch auf dem Server gesichert, als JSON-Datei in `data/games/` (anderer Ort über die Umgebungsvariable `BRETT_DATA_DIR`). Beim Öffnen landet jedes Gerät in der zuletzt gespielten Partie: am Handy fotografieren, am PC oder Tablet weiterspielen. Im Bereich „Partien“ stehen der Name, die Zugliste in deutscher Notation, „Zug zurück“, „Neue Partie“ und alle anderen Partien mit Mini-Brett. Beim Speichern spielt der Server die Zugliste nach und lehnt Stände ab, die nicht zur gemeldeten Stellung passen. Spielen zwei Geräte gleichzeitig dieselbe Partie, gilt der zuletzt gespeicherte Stand. Nach einer Korrektur im Editor beginnt die Zugliste neu ab der korrigierten Stellung.
+
+API-Endpunkte: `/api/games` (GET Liste, POST neu), `/api/games/{id}` (GET, PUT, DELETE), `/api/detect-corners`, `/api/scan-board`, `/api/make-move`, `/api/legal-moves`, `/api/engine-analyze` (Top-3 per MultiPV), `/api/engine-play` (Stufen 1–5; Stufe 1 und 2 über Stockfishs `Skill Level`, weil `UCI_Elo` erst bei 1320 beginnt), `/api/engine-levels`.
+
+### 5. Tests
 
 ```sh
 pip install -r requirements-dev.txt

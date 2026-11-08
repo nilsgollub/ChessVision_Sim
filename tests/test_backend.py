@@ -89,6 +89,39 @@ def test_engine_analyze_returns_full_fen():
     assert parts[5] == "20"
 
 
+@pytest.mark.skipif(backend.find_stockfish()[0] is None, reason="Stockfish nicht installiert")
+def test_engine_analyze_top_three_moves():
+    res = client.post("/api/engine-analyze", json={"fen": START, "think_time_sec": 0.1, "multipv": 3})
+    data = res.json()
+    assert len(data["top_moves"]) == 3
+    assert [m["rank"] for m in data["top_moves"]] == [1, 2, 3]
+    assert all(m["piece"] in "PN" for m in data["top_moves"])
+    assert data["best_move_uci"] == data["top_moves"][0]["uci"]
+
+
+@pytest.mark.skipif(backend.find_stockfish()[0] is None, reason="Stockfish nicht installiert")
+@pytest.mark.parametrize("level", [1, 3, 5])
+def test_engine_play_levels(level):
+    res = client.post("/api/engine-play", json={"fen": START, "level": level})
+    data = res.json()
+    assert res.status_code == 200, res.text
+    assert data["fen"].split()[1] == "b"
+    assert data["move"]["piece"] in "PN"
+
+
+def test_engine_analyze_rejects_impossible_position(monkeypatch):
+    monkeypatch.setattr(backend, "find_stockfish", lambda: ("/bin/true", []))
+    res = client.post("/api/engine-analyze", json={"fen": "8/8/8/8/8/8/8/8 w - - 0 1"})
+    assert res.status_code == 400
+
+
+def test_legal_moves_and_make_move_info():
+    moves = client.post("/api/legal-moves", json={"fen": START}).json()["moves"]
+    assert len(moves) == 20 and "g1f3" in moves
+    data = client.post("/api/make-move", json={"fen": START, "from_sq": "g1", "to_sq": "f3"}).json()
+    assert data["move"] == {"uci": "g1f3", "san": "Nf3", "from": "g1", "to": "f3", "piece": "N", "capture": False}
+
+
 # --- grid_to_fen ---------------------------------------------------------------
 
 def grid_from_placement(placement):
