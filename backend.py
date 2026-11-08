@@ -20,12 +20,34 @@ app = FastAPI(title="Chess Vision & Sim Backend")
 vision = ChessVisionEngine(model_path="chess_yolov8n.pt", board_size_px=800)
 
 # Stockfish Pfad automatisch finden (Linux / Windows)
-STOCKFISH_PATH = (
-    os.getenv("STOCKFISH_PATH")
-    or shutil.which("stockfish")
-    or "/usr/games/stockfish"
-    or "C:/stockfish/stockfish.exe"
-)
+STOCKFISH_CANDIDATES = [
+    "/usr/games/stockfish",
+    "/usr/bin/stockfish",
+    "/usr/local/bin/stockfish",
+    "C:/stockfish/stockfish.exe",
+]
+
+
+def find_stockfish():
+    """Sucht Stockfish: STOCKFISH_PATH, dann PATH, dann feste Kandidatenpfade.
+
+    Gibt (Pfad oder None, Liste der durchsuchten Orte) zurück.
+    """
+    searched = []
+    env_path = os.getenv("STOCKFISH_PATH")
+    if env_path:
+        searched.append(f"STOCKFISH_PATH={env_path}")
+        if os.path.exists(env_path):
+            return env_path, searched
+    searched.append("PATH (shutil.which('stockfish'))")
+    which_path = shutil.which("stockfish")
+    if which_path:
+        return which_path, searched
+    for candidate in STOCKFISH_CANDIDATES:
+        searched.append(candidate)
+        if os.path.exists(candidate):
+            return candidate, searched
+    return None, searched
 
 
 class EngineRequest(BaseModel):
@@ -145,10 +167,13 @@ async def api_make_move(req: MoveRequest):
 @app.post("/api/engine-analyze")
 async def api_engine_analyze(req: EngineRequest):
     """Fragt Stockfish nach dem besten Zug, der Bewertung und führt ihn optional aus."""
-    if not os.path.exists(STOCKFISH_PATH):
+    stockfish_path, searched = find_stockfish()
+    if stockfish_path is None:
         raise HTTPException(
             status_code=500,
-            detail=f"Stockfish wurde unter '{STOCKFISH_PATH}' nicht gefunden. Bitte installieren."
+            detail="Stockfish wurde nicht gefunden. Gesucht in: "
+                   + ", ".join(searched)
+                   + ". Bitte installieren oder STOCKFISH_PATH setzen."
         )
 
     try:
@@ -160,7 +185,7 @@ async def api_engine_analyze(req: EngineRequest):
         return {"game_over": True, "fen": board.fen(), "best_move": None}
 
     try:
-        with chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH) as engine:
+        with chess.engine.SimpleEngine.popen_uci(stockfish_path) as engine:
             info = engine.analyse(board, chess.engine.Limit(time=req.think_time_sec))
             best_move = info.get("pv", [None])[0]
             score_obj = info["score"].white()

@@ -121,6 +121,8 @@
     <img id="warped-preview" alt="Entzerrtes Brett" />
 
 
+    <div id="fen-display" style="font-size:0.72rem; color:#9ca3af; font-family:monospace; word-break:break-all;"></div>
+
     <div id="board-wrapper">
       <div id="chessboard"></div>
     </div>
@@ -156,6 +158,9 @@ let draggingCornerIdx = -1;
 
 let boardGrid = Array(8).fill(null).map(() => Array(8).fill(""));
 let activeColor = "w";
+// Vollständige FEN (Rochaderechte, En-passant-Feld, Zugzähler) wie vom Backend geliefert.
+// Wird nur bei Änderungen im Editor oder beim Umschalten der Farbe aus dem Grid neu aufgebaut.
+let currentFen = "";
 let flipped = false;
 let selectedSquare = null;
 let hintSquares = [];
@@ -330,9 +335,12 @@ document.getElementById("btn-toggle-warp").addEventListener("click", () => {
 
 // --- 3. FEN <-> Grid & Interaktives 2D-Schachbrett ---
 function loadFenIntoGrid(fen) {
-  const parts = fen.split(" ");
+  const parts = fen.trim().split(/\s+/);
   const rows = parts[0].split("/");
   activeColor = parts[1] || "w";
+  currentFen = [
+    parts[0], activeColor, parts[2] || "-", parts[3] || "-", parts[4] || "0", parts[5] || "1"
+  ].join(" ");
   updateTurnButton();
 
 
@@ -352,8 +360,8 @@ function loadFenIntoGrid(fen) {
 }
 
 
-function getFenFromGrid() {
-  const rows = boardGrid.map(row => {
+function getPlacementFromGrid() {
+  return boardGrid.map(row => {
     let empty = 0, s = "";
     for (const cell of row) {
       if (cell === "") empty++;
@@ -361,10 +369,42 @@ function getFenFromGrid() {
     }
     if (empty > 0) s += empty;
     return s;
-  });
-  return `${rows.join("/")} ${activeColor} KQkq - 0 1`;
+  }).join("/");
 }
 
+// Rochaderechte nur behalten, wenn König und Turm noch auf ihren Ausgangsfeldern stehen.
+// boardGrid[0] = 8. Reihe, boardGrid[7] = 1. Reihe; Spalte 0 = a, 7 = h.
+function filterCastlingRights(rights) {
+  const g = boardGrid;
+  const ok = {
+    K: g[7][4] === "K" && g[7][7] === "R",
+    Q: g[7][4] === "K" && g[7][0] === "R",
+    k: g[0][4] === "k" && g[0][7] === "r",
+    q: g[0][4] === "k" && g[0][0] === "r",
+  };
+  const kept = "KQkq".split("").filter(ch => rights.includes(ch) && ok[ch]).join("");
+  return kept || "-";
+}
+
+// Baut die FEN nach manuellen Änderungen (Editor, Farbe am Zug) aus dem Grid neu auf.
+// Bisherige Rochaderechte werden gefiltert, das En-passant-Feld verfällt, die Zugzähler bleiben.
+function rebuildFenFromGrid() {
+  const parts = currentFen ? currentFen.split(" ") : [];
+  const castling = filterCastlingRights(parts[2] || "KQkq");
+  const halfmove = parts[4] || "0";
+  const fullmove = parts[5] || "1";
+  currentFen = `${getPlacementFromGrid()} ${activeColor} ${castling} - ${halfmove} ${fullmove}`;
+  updateFenDisplay();
+}
+
+function getCurrentFen() {
+  if (!currentFen) rebuildFenFromGrid();
+  return currentFen;
+}
+
+function updateFenDisplay() {
+  document.getElementById("fen-display").textContent = currentFen;
+}
 
 function rcToSquareName(r, c) {
   const file = String.fromCharCode(97 + c);
@@ -376,6 +416,7 @@ function rcToSquareName(r, c) {
 function renderBoard() {
   const boardEl = document.getElementById("chessboard");
   boardEl.innerHTML = "";
+  updateFenDisplay();
 
 
   for (let i = 0; i < 8; i++) {
@@ -428,6 +469,7 @@ async function onSquareClick(r, c, sqName) {
   // Falls Editor-Modus aktiv ist: Figur direkt setzen oder löschen
   if (editModePiece !== null) {
     boardGrid[r][c] = editModePiece === "ERASE" ? "" : editModePiece;
+    rebuildFenFromGrid();
     renderBoard();
     return;
   }
@@ -448,7 +490,7 @@ async function onSquareClick(r, c, sqName) {
     const res = await fetch("/api/make-move", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fen: getFenFromGrid(), from_sq: selectedSquare, to_sq: sqName })
+      body: JSON.stringify({ fen: getCurrentFen(), from_sq: selectedSquare, to_sq: sqName })
     });
     const data = await res.json();
     selectedSquare = null;
@@ -503,6 +545,7 @@ function updateTurnButton() {
 document.getElementById("btn-turn").addEventListener("click", () => {
   activeColor = activeColor === "w" ? "b" : "w";
   updateTurnButton();
+  rebuildFenFromGrid();
 });
 
 
@@ -519,7 +562,7 @@ async function queryStockfish(applyMove = false) {
     const res = await fetch("/api/engine-analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fen: getFenFromGrid(), think_time_sec: 0.8 })
+      body: JSON.stringify({ fen: getCurrentFen(), think_time_sec: 0.8 })
     });
     const data = await res.json();
     if (!res.ok) {

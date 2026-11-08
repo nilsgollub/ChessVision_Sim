@@ -12,6 +12,8 @@ ChessVision_Sim/
 ├── vision_engine.py    # OpenCV Auto-Corner-Detection, Homographie-Entzerrung, YOLO Fußpunkt-Mapping
 ├── chess_yolov8n.pt    # (Optional) Trainiertes YOLOv8-Gewichtsmodell für die 12 Figurenklassen
 ├── requirements.txt
+├── requirements-dev.txt  # Test-Abhängigkeiten (pytest, httpx, playwright)
+├── tests/              # pytest: API-Tests (TestClient) und Browser-Ablauf (Playwright)
 └── static/
     └── index.html      # Mobile Web-App (Kamera-Input, interaktive Eck-Pins, 2D-Brett, Editor & KI)
 ```
@@ -36,6 +38,7 @@ ChessVision_Sim/
 
 ### C. Spiel- & Engine-Logik (`backend.py`)
 
+* Das Frontend speichert die vollständige FEN aus `/api/make-move`, `/api/engine-analyze` und `/api/scan-board` (Rochaderechte, En-passant-Feld, Zugzähler) und schickt sie unverändert zurück. Nur nach Änderungen im Editor oder beim Umschalten der Farbe am Zug wird sie aus dem Brett neu aufgebaut: Rochaderechte bleiben nur, wenn König und Turm noch auf ihren Ausgangsfeldern stehen, das En-passant-Feld wird `-`, die Zugzähler bleiben. Beim Scan leitet `grid_to_fen` die Rochaderechte ebenso aus der Stellung ab.
 * Nutzt `python-chess` zur Validierung legaler Züge, Schach-/Matt-Erkennung und FEN-Verwaltung.  
 * Kommuniziert über das UCI-Protokoll (`chess.engine.SimpleEngine.popen_uci`) mit einer lokalen **Stockfish**-Instanz, liefert Stellungsbewertungen in Centipawns bzw. Matt-Zügen und berechnet entweder einen visuellen Tipp oder führt den besten KI-Zug direkt aus.
 
@@ -57,7 +60,9 @@ pip install fastapi uvicorn python-multipart opencv-python-headless numpy chess 
 sudo apt update && sudo apt install stockfish -y
 ```
 
-* **Windows:** Stockfish-Binary von `stockfishchess.org` herunterladen und den Pfad als Umgebungsvariable setzen oder in `backend.py` unter `STOCKFISH_PATH` eintragen.
+* **Windows:** Stockfish-Binary von `stockfishchess.org` herunterladen und den Pfad in der Umgebungsvariable `STOCKFISH_PATH` setzen (oder nach `C:/stockfish/stockfish.exe` legen).
+
+Das Backend sucht Stockfish in dieser Reihenfolge: Umgebungsvariable `STOCKFISH_PATH`, `stockfish` im `PATH`, dann `/usr/games/stockfish`, `/usr/bin/stockfish`, `/usr/local/bin/stockfish`, `C:/stockfish/stockfish.exe`. Wird nichts gefunden, nennt die Fehlermeldung alle durchsuchten Orte.
 
 ### 3. Server starten
 
@@ -66,6 +71,15 @@ python backend.py
 ```
 
 Der Server läuft standardmäßig auf `0.0.0.0:8000`.
+
+### 4. Tests
+
+```sh
+pip install -r requirements-dev.txt
+pytest
+```
+
+Der Stockfish-Test wird übersprungen, wenn kein Stockfish gefunden wird; die Browser-Tests (`tests/test_frontend.py`), wenn Playwright oder Chromium fehlen. Ein bereits installiertes Chromium anderer Revision lässt sich mit `CHROMIUM_PATH=/pfad/zu/chrome pytest` verwenden, sonst `playwright install chromium`.
 
 ---
 

@@ -31,6 +31,25 @@ CLASS_TO_FEN = {
 }
 
 
+def castling_from_grid(grid: List[List[str]]) -> str:
+    """Rochaderechte nur, wenn König und Turm auf ihren Ausgangsfeldern stehen.
+
+    grid[0] ist die 8. Reihe, grid[7] die 1. Reihe; Spalte 0 = a, 7 = h.
+    """
+    rights = ""
+    if grid[7][4] == "K":
+        if grid[7][7] == "R":
+            rights += "K"
+        if grid[7][0] == "R":
+            rights += "Q"
+    if grid[0][4] == "k":
+        if grid[0][7] == "r":
+            rights += "k"
+        if grid[0][0] == "r":
+            rights += "q"
+    return rights or "-"
+
+
 class ChessVisionEngine:
     def __init__(self, model_path: str = "chess_yolov8n.pt", board_size_px: int = 800):
         self.board_size_px = board_size_px
@@ -197,4 +216,4 @@ class ChessVisionEngine:
             if empty > 0:
                 row_str += str(empty)
             fen_rows.append(row_str)
-        return f"{'/'.join(fen_rows)} {active_color} KQkq - 0 1"
+        return f"{'/'.join(fen_rows)} {active_color} {castling_from_grid(grid)} - 0 1"
