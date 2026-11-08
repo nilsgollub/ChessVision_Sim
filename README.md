@@ -97,6 +97,18 @@ cp out/chess_yolov8n.pt .
 
 The datasets show other boards than yours. For reliable results on your own set, fine-tune with 30–50 labelled photos of your board.
 
+### Docker
+
+The image contains Stockfish, Ultralytics and the CPU build of PyTorch (about 2.8 GB). The model is not part of the image; mount it if you have one, otherwise leave that line out.
+
+```sh
+docker build -t brettfreunde .
+docker run -d --name brettfreunde --restart unless-stopped -p 8000:8000 \
+  -v "$PWD/data:/data" \
+  -v "$PWD/chess_yolov8n.pt:/app/chess_yolov8n.pt:ro" \
+  brettfreunde
+```
+
 ## Web app development
 
 ```sh
