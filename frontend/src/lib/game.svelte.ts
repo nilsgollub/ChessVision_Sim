@@ -35,6 +35,9 @@ class Game {
   saveState = $state<SaveState>("idle");
   saveError = $state("");
   savedGames = $state<GameSummary[]>([]);
+  /** Effekt des letzten Zugs (nur bei echten Zügen, nicht beim Laden oder Zurücknehmen). */
+  fx = $state<{ id: number; from: string; to: string; captured: string; capturedSq: string } | null>(null);
+  private fxId = 0;
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
   private saving: Promise<void> = Promise.resolve();
 
@@ -53,7 +56,15 @@ class Game {
 
   /** Neue FEN vom Backend übernehmen (vollständig, inkl. Rochade, En passant, Zähler). */
   loadFen(fen: string, move: MoveInfo | null = null) {
+    this.fx = null;
     if (move) {
+      // Geschlagene Figur aus der Stellung vor dem Zug; en passant steht sie neben dem Zielfeld.
+      let capturedSq = "", captured = "";
+      if (move.capture) {
+        capturedSq = this.pieceAt(move.to) ? move.to : move.to[0] + move.from[1];
+        captured = this.pieceAt(capturedSq);
+      }
+      this.fx = { id: ++this.fxId, from: move.from, to: move.to, captured, capturedSq };
       this.history.push({ uci: move.uci, san: move.san, piece: move.piece, fen: normalizeFen(fen) });
       this.scheduleSave();
     }

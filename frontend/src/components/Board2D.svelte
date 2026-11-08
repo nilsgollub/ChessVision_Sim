@@ -29,6 +29,21 @@
     };
   }
 
+  // Zuckerperlen für den Schlag: Richtung und Farbe je Perle
+  const BITS = Array.from({ length: 12 }, (_, i) => {
+    const a = (i / 12) * Math.PI * 2 + (i % 2 ? 0.25 : 0);
+    const d = 46 + (i % 3) * 14;
+    return { tx: Math.cos(a) * d, ty: Math.sin(a) * d - 18, color: ["#F2559A", "#1FAA7E", "#F5C24B", "#8E6BE3", "#3D93E8", "#F0784A"][i % 6], r: 5 + (i % 3) };
+  });
+
+  function arrival(sq: string) {
+    const fx = game.fx;
+    if (!fx || fx.to !== sq) return null;
+    const [fx0, fy0] = pos(fx.from);
+    const [tx0, ty0] = pos(fx.to);
+    return { dx: fx0 - tx0, dy: fy0 - ty0 };
+  }
+
   function label(sq: string) {
     const p = game.pieceAt(sq);
     return p ? `${sq}, ${pieceInfo(p).label}` : `${sq}, leer`;
@@ -65,8 +80,11 @@
         <text x={x + 8} y={y + 22} class="coord" class:on-dark={dark}>{sq[1]}</text>
       {/if}
       {#if piece}
-        {#key game.selected === sq ? game.plateBump : -1}
-          <g class="piece" class:hop={game.selected === sq} transform="translate({x + 6} {y + 4}) scale(.88)">
+        {@const arr = arrival(sq)}
+        {#key `${game.selected === sq ? game.plateBump : -1}/${arr ? game.fx?.id : 0}`}
+          <g class="piece" class:hop={game.selected === sq} class:arrive={!!arr}
+            style={arr ? `--dx: ${arr.dx}px; --dy: ${arr.dy}px` : undefined}
+            transform="translate({x + 6} {y + 4}) scale(.88)">
             {@html pieceSvg(piece)}
           </g>
         {/key}
@@ -80,6 +98,18 @@
       {/if}
     </g>
   {/each}
+
+  {#if game.fx?.captured}
+    {#key game.fx.id}
+      {@const [cx, cy] = pos(game.fx.capturedSq)}
+      <g class="knockout" transform="translate({cx} {cy})" pointer-events="none" aria-hidden="true">
+        {#each BITS as b}
+          <circle class="bit" cx="50" cy="56" r={b.r} fill={b.color} style="--tx: {b.tx}px; --ty: {b.ty}px" />
+        {/each}
+        <g class="gone">{@html pieceSvg(game.fx.captured)}</g>
+      </g>
+    {/key}
+  {/if}
 
   {#if game.hintsFresh}
     <g class="arrows" pointer-events="none">
@@ -114,5 +144,21 @@
     40% { translate: 0 -14px; }
     100% { translate: 0 0; }
   }
-  @media (prefers-reduced-motion: reduce) { .hop { animation: none; } }
+  /* Zug: die Figur gleitet vom Startfeld heran */
+  .arrive { animation: arrive 300ms cubic-bezier(.22, 1, .36, 1); }
+  @keyframes arrive { from { translate: var(--dx) var(--dy); } to { translate: 0 0; } }
+  /* Schlag: geschlagene Figur hopst, kippt und schrumpft weg, Zuckerperlen sprühen */
+  .gone { transform-origin: 50px 92px; animation: gone 440ms 170ms cubic-bezier(.4, 0, .7, 1) both; }
+  @keyframes gone {
+    0% { transform: translate(6px, 4px) scale(.88); opacity: 1; }
+    30% { transform: translate(6px, -16px) scale(.92) rotate(-10deg); opacity: 1; }
+    100% { transform: translate(6px, 12px) scale(0) rotate(50deg); opacity: 0; }
+  }
+  .bit { opacity: 0; animation: bit 560ms 230ms cubic-bezier(.2, .8, .4, 1) forwards; }
+  @keyframes bit {
+    0% { opacity: 1; translate: 0 0; scale: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; translate: var(--tx) var(--ty); scale: .5; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hop, .arrive { animation: none; } .gone, .bit { display: none; } }
 </style>

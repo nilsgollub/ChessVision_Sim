@@ -288,24 +288,93 @@
       return m;
     }
 
-    // Animationen
-    type Anim = { mesh: THREE.Object3D; from: THREE.Vector3; to: THREE.Vector3; t0: number; dur: number; hop: number; done?: () => void };
+    // Animationen: jede bekommt k von 0 bis 1 über ihre Dauer, optional mit Verzögerung.
+    type Anim = { t0: number; dur: number; step: (k: number) => void; done?: () => void };
     let anims: Anim[] = [];
+    let slowMo = 1; // nur für Tests: Zeitlupe, weil Software-Rendering wenige Bilder pro Sekunde schafft
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function slide(mesh: THREE.Object3D, from: THREE.Vector3, to: THREE.Vector3, dur: number, hop: number, done?: () => void) {
+      anims.push({
+        t0: performance.now(), dur: dur * slowMo, done,
+        step: (k) => {
+          const e = 1 - Math.pow(1 - k, 3);
+          mesh.position.lerpVectors(from, to, e);
+          mesh.position.y = Math.sin(Math.PI * k) * hop;
+        },
+      });
+    }
+
+    // Geschlagene Figur: kleiner Hopser, kippt weg, schrumpft; dazu Zuckerperlen.
+    const confettiGeo = new THREE.SphereGeometry(0.07, 10, 8);
+    const CONFETTI = ["#F2559A", "#1FAA7E", "#F5C24B", "#8E6BE3", "#3D93E8", "#F0784A"];
+    function knockOut(mesh: THREE.Object3D, delay: number) {
+      scene.attach(mesh); // aus der Figurengruppe lösen, damit ein Neuaufbau sie nicht vorzeitig entfernt
+      const start = mesh.position.clone();
+      const tilt = (Math.random() < 0.5 ? -1 : 1) * 1.2;
+      anims.push({
+        t0: performance.now() + delay * slowMo, dur: 460 * slowMo,
+        step: (k) => {
+          const e = 1 - Math.pow(1 - k, 2);
+          mesh.position.set(start.x, Math.sin(Math.PI * Math.min(1, k * 1.6)) * 0.45, start.z);
+          mesh.rotation.z = tilt * e;
+          mesh.scale.setScalar(Math.max(0.001, 1 - Math.pow(k, 1.6)));
+        },
+        done: () => scene.remove(mesh),
+      });
+      const burst = new THREE.Group();
+      burst.position.copy(start).setY(0.45);
+      scene.add(burst);
+      const parts = Array.from({ length: 14 }, (_, i) => {
+        const mat = new THREE.MeshBasicMaterial({ color: CONFETTI[i % CONFETTI.length], transparent: true });
+        const m = new THREE.Mesh(confettiGeo, mat);
+        const a = (i / 14) * Math.PI * 2 + Math.random() * 0.4;
+        const sp = 1.6 + Math.random() * 1.2;
+        m.userData.v = new THREE.Vector3(Math.cos(a) * sp, 2.4 + Math.random() * 1.6, Math.sin(a) * sp);
+        burst.add(m);
+        return m;
+      });
+      anims.push({
+        t0: performance.now() + (delay + 60) * slowMo, dur: 620 * slowMo,
+        step: (k) => {
+          const t = k * 0.62;
+          for (const m of parts) {
+            const v = m.userData.v as THREE.Vector3;
+            m.position.set(v.x * t, v.y * t - 4.9 * t * t, v.z * t);
+            (m.material as THREE.MeshBasicMaterial).opacity = 1 - k * k;
+          }
+        },
+        done: () => {
+          scene.remove(burst);
+          for (const m of parts) (m.material as THREE.Material).dispose();
+        },
+      });
+    }
 
     function animateMove(from: string, to: string) {
       const mesh = meshBySquare.get(from);
       if (!mesh || reduced) { rebuildPieces(); return; }
-      const captured = meshBySquare.get(to);
-      if (captured) pieceGroup.remove(captured);
-      anims.push({ mesh, from: sqPos(from), to: sqPos(to), t0: performance.now(), dur: 380, hop: game.pieceAt(to).toLowerCase() === "n" ? 0.9 : 0.35, done: rebuildPieces });
+      const fx = game.fx;
+      const captured = fx && fx.capturedSq ? meshBySquare.get(fx.capturedSq) : undefined;
+      const knight = game.pieceAt(to).toLowerCase() === "n";
+      const dur = 380;
+      if (captured) {
+        meshBySquare.delete(fx!.capturedSq);
+        knockOut(captured, dur * 0.62); // kurz bevor der Angreifer landet
+      }
+      meshBySquare.delete(from);
+      meshBySquare.set(to, mesh);
+      const fenAtStart = game.fen;
+      shownFen = fenAtStart;
+      // Danach sauber neu aufbauen (Rochade-Turm, Umwandlung), außer ein neuerer Zug läuft schon
+      slide(mesh, sqPos(from), sqPos(to), dur, knight ? 0.9 : 0.35, () => { if (game.fen === fenAtStart) rebuildPieces(); });
     }
 
     function hopSelected(sq: string) {
       const mesh = meshBySquare.get(sq);
       if (!mesh || reduced) return;
       const p = sqPos(sq);
-      anims.push({ mesh, from: p, to: p, t0: performance.now(), dur: 420, hop: 0.32 });
+      slide(mesh, p, p, 420, 0.32);
     }
 
     // Kamera
@@ -351,6 +420,8 @@
 
     // Für Tests: Bildschirmposition eines Feldes
     (window as unknown as { brett3d: unknown }).brett3d = {
+      runningAnimations: () => anims.length,
+      setSlowMotion: (f: number) => (slowMo = f),
       squareToScreen(sq: string) {
         // Mit Figur auf die Körpermitte zielen: auf dem Bildschirm verdecken vordere Figuren den Fußpunkt.
         const v = sqPos(sq).setY(game.pieceAt(sq) ? 0.45 : 0).project(camera);
@@ -366,11 +437,10 @@
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       anims = anims.filter((a) => {
+        if (now < a.t0) return true;
         const k = Math.min(1, (now - a.t0) / a.dur);
-        const e = 1 - Math.pow(1 - k, 3);
-        a.mesh.position.lerpVectors(a.from, a.to, e);
-        a.mesh.position.y = Math.sin(Math.PI * k) * a.hop;
-        if (k >= 1) { a.mesh.position.copy(a.to); a.done?.(); return false; }
+        a.step(k);
+        if (k >= 1) { a.done?.(); return false; }
         return true;
       });
       controls.update();

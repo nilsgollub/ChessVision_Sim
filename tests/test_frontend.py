@@ -181,6 +181,40 @@ def test_undo_and_switching_games(page, server_url):
     page.wait_for_function("window.brettfreunde.getFen().startsWith('rnbqkbnr/pppppppp/8/8/3P4')")
 
 
+def test_capture_animation_in_2d_including_en_passant(page):
+    for uci in ["e2e4", "d7d5"]:
+        move(page, uci)
+    move(page, "e4d5")
+    ko = page.locator("svg.board .knockout")
+    assert ko.count() == 1 and ko.locator(".bit").count() == 12
+    assert page.evaluate("window.brettfreunde.game.fx.capturedSq") == "d5"
+    # en passant: geschlagener Bauer steht neben dem Zielfeld
+    page.evaluate("window.brettfreunde.game.newGame('rnbqkbnr/pp1p1ppp/8/2pPp3/8/8/PPP2PPP/RNBQKBNR w KQkq e6 0 4')")
+    move(page, "d5e6")
+    fx = page.evaluate("window.brettfreunde.game.fx")
+    assert fx["capturedSq"] == "e5" and fx["captured"] == "p"
+    # Normale Züge ohne Schlag: kein Effekt
+    move(page, "a7a6")
+    assert page.evaluate("window.brettfreunde.game.fx.captured") == ""
+
+
+def test_capture_animation_in_3d(browser, server_url):
+    clear_games(server_url)
+    pg = browser.new_page(viewport={"width": 390, "height": 844})
+    pg.goto(server_url)
+    try:
+        pg.wait_for_function("window.brett3d !== undefined", timeout=5000)
+    except Exception:
+        pytest.skip("kein WebGL in diesem Browser")
+    pg.evaluate("window.brettfreunde.game.newGame('rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2')")
+    pg.evaluate("window.brett3d.setSlowMotion(10)")
+    pg.evaluate("window.brettfreunde.game.move('e4', 'd5')")
+    pg.wait_for_function("window.brett3d.runningAnimations() >= 3")  # Zug, Umfallen, Zuckerperlen
+    pg.evaluate("window.brett3d.setSlowMotion(1)")
+    pg.wait_for_function("window.brett3d.runningAnimations() === 0", timeout=20000)
+    pg.close()
+
+
 def test_three_d_board_moves_by_tap(browser, server_url):
     clear_games(server_url)
     pg = browser.new_page(viewport={"width": 390, "height": 844})
