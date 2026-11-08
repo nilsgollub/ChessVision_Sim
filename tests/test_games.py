@@ -18,15 +18,15 @@ def test_create_save_load_list_delete():
     assert g["name"].startswith("Partie vom ")
     assert g["moves"][0] == {"uci": "e2e4", "san": "e4", "piece": "P",
                              "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"}
-    saved = client.put(f"/api/games/{g['id']}", json={"name": "Papa gegen Lea", "start_fen": START,
+    saved = client.put(f"/api/games/{g['id']}", json={"name": "Sonntagspartie", "start_fen": START,
                                                       "moves": [{"uci": "e2e4"}, {"uci": "e7e5"}]}).json()
-    assert saved["name"] == "Papa gegen Lea" and saved["created"] == g["created"]
+    assert saved["name"] == "Sonntagspartie" and saved["created"] == g["created"]
     assert client.get(f"/api/games/{g['id']}").json()["fen"].startswith("rnbqkbnr/pppp1ppp/8/4p3/4P3")
     summary = next(x for x in client.get("/api/games").json() if x["id"] == g["id"])
     assert summary["move_count"] == 2 and summary["turn"] == "w"
     # Name bleibt beim nächsten Speichern ohne Namen erhalten
     again = client.put(f"/api/games/{g['id']}", json={"start_fen": START, "moves": []}).json()
-    assert again["name"] == "Papa gegen Lea"
+    assert again["name"] == "Sonntagspartie"
     assert client.delete(f"/api/games/{g['id']}").status_code == 200
     assert client.get(f"/api/games/{g['id']}").status_code == 404
 

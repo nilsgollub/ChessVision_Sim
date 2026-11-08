@@ -67,7 +67,7 @@
   <section class="current" aria-label="Aktuelle Partie">
     <label class="name">
       <span>Name der Partie</span>
-      <input type="text" maxlength="80" bind:value={nameDraft} placeholder="z.B. Papa gegen Lea"
+      <input type="text" maxlength="80" bind:value={nameDraft} placeholder="z.B. Sonntagspartie"
         onchange={() => game.rename(nameDraft)} onkeydown={(e) => e.key === "Enter" && (e.currentTarget as HTMLInputElement).blur()} />
     </label>
     <p class="save" data-state={game.saveState} aria-live="polite">{saveText}</p>
