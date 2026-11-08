@@ -12,6 +12,7 @@ ChessVision_Sim/
 ├── games_store.py    # Gespeicherte Partien (JSON-Dateien in data/games/)
 ├── vision_engine.py    # OpenCV Auto-Corner-Detection, Homographie-Entzerrung, YOLO Fußpunkt-Mapping
 ├── chess_yolov8n.pt    # (Optional) Trainiertes YOLOv8-Gewichtsmodell für die 12 Figurenklassen
+├── app/                # Android-App (Capacitor-Hülle): Server wählen, dann Web-App laden
 ├── frontend/           # Web-App (Vite + Svelte 5 + Three.js), Quellcode
 ├── PRODUCT.md          # Produktkontext (Nutzer, Zweck, Grundsätze)
 ├── requirements.txt
@@ -91,7 +92,19 @@ Die App heißt **Brettfreunde**: Figuren sind Charaktere mit Namen und einem Sat
 
 API-Endpunkte: `/api/games` (GET Liste, POST neu), `/api/games/{id}` (GET, PUT, DELETE), `/api/detect-corners`, `/api/scan-board`, `/api/make-move`, `/api/legal-moves`, `/api/engine-analyze` (Top-3 per MultiPV), `/api/engine-play` (Stufen 1–5; Stufe 1 und 2 über Stockfishs `Skill Level`, weil `UCI_Elo` erst bei 1320 beginnt), `/api/engine-levels`.
 
-### 5. Tests
+### 5. Android-App
+
+`app/` ist eine schlanke Capacitor-Hülle (`ch.gollub.brettfreunde`). Beim ersten Start fragt sie nach der Server-Adresse, zum Beispiel `http://192.168.1.20:8000` im Heimnetz oder eine VPN-Adresse unterwegs. Feste Schnellwahl-Adressen für den eigenen Build kommen in `app/www/presets.js` (Vorlage: `presets.example.js`, nicht im Repo). Sie prüft, ob der Server antwortet, merkt sich die Adresse und lädt dann die Web-App direkt vom Server. App und Server passen dadurch immer zusammen. Ein neues Frontend braucht kein neues APK, nur Änderungen an `app/www/` oder `app/android/`. In der App steht unter „Mehr“ der Knopf „Server wechseln“.
+
+Bauen (nach dem Commit, weil die Versionsnummer die Anzahl der Commits ist). Mit einer lokalen `app/publish.env` und `PUBLISH_CMD=…` legt das Skript das APK danach z.B. in ein eigenes F-Droid-Repo:
+
+```sh
+app/publish.sh
+```
+
+Signiert wird mit dem Debug-Schlüssel des Build-Rechners (`~/.android/debug.keystore`); für die Verteilung im eigenen Netz reicht das. Der Server muss laufen (`python backend.py`), sonst meldet die App, dass er nicht antwortet.
+
+### 6. Tests
 
 ```sh
 pip install -r requirements-dev.txt
@@ -115,34 +128,6 @@ Der Stockfish-Test wird übersprungen, wenn kein Stockfish gefunden wird; die Br
 ---
 
 ## 5. Eigenes YOLOv8-Modell einbinden / feintunen
-
-### Fertiges Startmodell (Stand 2026-11-08)
-
-`training/train_colab.py` trainiert `chess_yolov8n.pt` auf öffentlichen Datensätzen (beide CC-BY-4.0):
-
-* [dopaul/chess-pieces-merged](https://huggingface.co/datasets/dopaul/chess-pieces-merged), nur die Bilder aus `chess_pieces_dominique`. Die Roboflow-Bilder darin haben keine Labels, bei den Formaten 960×1280 und 4032×3024 passen die Labels nicht zum Bild. Beides filtert das Skript heraus.
-* [Francesco/chess-pieces-mjzgj](https://huggingface.co/datasets/Francesco/chess-pieces-mjzgj) (Roboflow „Chess Pieces“ aus RF100).
-
-Ergebnis des ersten Laufs (422 Trainingsbilder, YOLOv8n, 640 px, Colab L4, etwa 5 Minuten): mAP50 0,98 auf Validierung und 0,97 auf Test, Details in `training/metrics.json`. Das Modell (6,5 MB) liegt wegen `*.pt` in `.gitignore` nicht im Repo. Neu erzeugen:
-
-```sh
-pip install ultralytics huggingface_hub pandas pillow
-python training/train_colab.py --epochs 100 --data-dir ./dataset --out ./out
-cp out/chess_yolov8n.pt .
-```
-
-Lokal reicht für die Erkennung PyTorch für die CPU (etwa 1 GB statt mehrerer GB mit CUDA):
-
-```sh
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-pip install ultralytics
-```
-
-Die Datensätze zeigen andere Bretter als deines. Für zuverlässige Ergebnisse auf dem eigenen Brett das Modell wie unten beschrieben mit eigenen Fotos nachtrainieren. Die Ultralytics-Gewichte stehen unter AGPL-3.0.
-
-**Bekannte Grenze der Eckenerkennung:** Bei Brettmatten mit breitem Rand findet `detect_board_corners` oft den Mattenrand statt der 8×8 Felder, das Gitter liegt dann versetzt. Die Pins im UI vor dem Scan auf die Ecken der Spielfelder schieben.
-
-### Eigenes Brett
 
 Sobald eine Datei `chess_yolov8n.pt` im Projektverzeichnis liegt, lädt `vision_engine.py` diese automatisch beim Start. Unterstützt werden alle Standard-Klassenbezeichnungen (`wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK` sowie `white-pawn`, `black-king` etc.).
 

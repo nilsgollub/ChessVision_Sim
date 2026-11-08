@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Brettfreunde</string>
+    <string name="title_activity_main">Brettfreunde</string>
+    <string name="package_name">ch.gollub.brettfreunde</string>
+    <string name="custom_url_scheme">ch.gollub.brettfreunde</string>
+</resources>

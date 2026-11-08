@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Brettfreunde</title>
+  <style>
+    @font-face { font-family: "Fredoka"; font-weight: 700; src: url(fredoka-700.woff2) format("woff2"); }
+    @font-face { font-family: "Nunito"; font-weight: 600; src: url(nunito-600.woff2) format("woff2"); }
+    :root { --ground: #F1EEFF; --ink: #2A2F5A; --ink-soft: #565B85; --line: #E4DFFA; --line-strong: #CBC4EE; --pink-deep: #C6457E; --bad: #C2264B; --mint-deep: #188462; --focus: #3D93E8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--ground); color: var(--ink); font: 600 1rem/1.45 "Nunito", system-ui, sans-serif; padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); }
+    main { width: min(420px, 100%); display: grid; gap: 16px; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo img { width: 64px; height: 64px; }
+    h1 { margin: 0; font: 700 2rem/1 "Fredoka", system-ui, sans-serif; }
+    .card { background: #fff; border-radius: 22px; padding: 16px; box-shadow: inset 0 0 0 2px var(--line); display: grid; gap: 12px; }
+    p { margin: 0; }
+    .soft { color: var(--ink-soft); }
+    label { display: grid; gap: 6px; font-size: 0.9rem; color: var(--ink-soft); }
+    input { min-height: 52px; border-radius: 16px; border: 2px solid var(--line-strong); padding: 0 14px; font: 600 1.05rem "Nunito", system-ui, sans-serif; color: var(--ink); background: var(--ground); }
+    input:focus { outline: none; border-color: var(--focus); background: #fff; }
+    .choices { display: grid; gap: 8px; }
+    .choice { min-height: 48px; border-radius: 16px; border: 0; background: var(--ground); color: var(--ink); font: 600 0.95rem "Nunito", system-ui, sans-serif; text-align: left; padding: 8px 14px; }
+    .choice b { display: block; font-family: "Fredoka", system-ui, sans-serif; }
+    .go { min-height: 56px; border-radius: 99px; border: 0; background: var(--pink-deep); color: #fff; font: 700 1.15rem "Fredoka", system-ui, sans-serif; box-shadow: 0 6px 14px rgba(198, 69, 126, 0.32); }
+    .go:disabled { opacity: 0.6; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+    #msg { min-height: 1.4em; }
+    #msg.bad { color: var(--bad); }
+    #msg.good { color: var(--mint-deep); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo"><img src="icon.svg" alt="" /><h1>Brettfreunde</h1></div>
+
+    <p id="connecting" class="soft" hidden>Verbinde mit dem Server …</p>
+
+    <section id="setup" class="card" hidden>
+      <p>Wo läuft dein Brettfreunde-Server?</p>
+      <div class="choices" id="choices"></div>
+      <label>Adresse
+        <input id="url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="z.B. http://192.168.1.20:8000" />
+      </label>
+      <button id="go" class="go">Verbinden</button>
+      <p id="msg" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <!-- Optionale Schnellwahl-Adressen für den eigenen Build, siehe presets.example.js (nicht im Repo) -->
+  <script src="presets.js" onerror="this.remove()"></script>
+  <script>
+    // Merkt sich die Server-Adresse und lädt dann die Web-App vom Server.
+    // Erreichbarkeit per no-cors: eine Antwort (auch undurchsichtig) heißt "Server da".
+    const KEY = "brettfreunde.server";
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+
+    function normalize(raw) {
+      let u = (raw || "").trim();
+      if (!u) return "";
+      if (!/^https?:\/\//i.test(u)) u = "http://" + u;
+      try { const x = new URL(u); return x.origin; } catch { return ""; }
+    }
+
+    async function reachable(base) {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 4000);
+      try {
+        await fetch(base + "/api/engine-levels", { mode: "no-cors", cache: "no-store", signal: ctl.signal });
+        return true;
+      } catch {
+        return false;
+      } finally {
+        clearTimeout(t);
+      }
+    }
+
+    function open(base) {
+      localStorage.setItem(KEY, base);
+      location.replace(base + "/");
+    }
+
+    async function connect(raw) {
+      const base = normalize(raw);
+      const msg = $("msg");
+      if (!base) { msg.className = "bad"; msg.textContent = "Das ist keine gültige Adresse."; return; }
+      $("go").disabled = true;
+      msg.className = ""; msg.textContent = "Prüfe " + base + " …";
+      if (await reachable(base)) {
+        msg.className = "good"; msg.textContent = "Verbunden.";
+        open(base);
+      } else {
+        msg.className = "bad";
+        msg.textContent = "Keine Antwort von " + base + ". Läuft der Server, und bist du im WLAN oder mit Tailscale verbunden?";
+        $("go").disabled = false;
+      }
+    }
+
+    function showSetup(prefill) {
+      $("connecting").hidden = true;
+      $("setup").hidden = false;
+      $("url").value = prefill || "";
+    }
+
+    const presets = Array.isArray(window.BRETT_PRESETS) ? window.BRETT_PRESETS : [];
+    for (const p of presets) {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.innerHTML = "<b></b>";
+      b.firstChild.textContent = p.label;
+      b.append(normalize(p.url).replace(/^https?:\/\//, ""));
+      b.addEventListener("click", () => { $("url").value = p.url; connect(p.url); });
+      $("choices").append(b);
+    }
+    $("choices").hidden = presets.length === 0;
+    $("go").addEventListener("click", () => connect($("url").value));
+    $("url").addEventListener("keydown", (e) => { if (e.key === "Enter") connect($("url").value); });
+
+    (async () => {
+      const saved = localStorage.getItem(KEY);
+      if (saved && !params.has("wechseln")) {
+        $("connecting").hidden = false;
+        if (await reachable(saved)) return open(saved);
+        showSetup(saved);
+        $("msg").className = "bad";
+        $("msg").textContent = "Der Server " + saved + " antwortet gerade nicht. Andere Adresse wählen oder nochmal verbinden.";
+        return;
+      }
+      showSetup(saved || (presets[0] && presets[0].url) || "");
+    })();
+  </script>
+</body>
+</html>

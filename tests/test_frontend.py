@@ -234,6 +234,27 @@ def test_phone_landscape_layout(browser, server_url, size):
     pg.close()
 
 
+def test_android_launcher_connects_and_remembers_server(browser, server_url):
+    """Startseite der Android-App (app/www): Adresse prüfen, merken, weiterleiten."""
+    launcher = "file://" + os.path.join(ROOT, "app", "www", "index.html")
+    ctx = browser.new_context(user_agent="Mozilla/5.0 Brettfreunde-App")
+    pg = ctx.new_page()
+    pg.goto(launcher)
+    pg.wait_for_selector("#setup:not([hidden])")
+    pg.fill("#url", "127.0.0.1:1")  # nichts erreichbar
+    pg.click("#go")
+    pg.wait_for_selector("#msg.bad", timeout=8000)
+    pg.fill("#url", server_url)
+    pg.click("#go")
+    pg.wait_for_url(server_url + "/", timeout=8000)
+    pg.click("[data-tab=mehr]")
+    assert pg.get_attribute("[data-testid=server-wechseln]", "href") == "http://localhost/?wechseln"
+    again = ctx.new_page()
+    again.goto(launcher)
+    again.wait_for_url(server_url + "/", timeout=8000)
+    ctx.close()
+
+
 def test_three_d_board_moves_by_tap(browser, server_url):
     clear_games(server_url)
     pg = browser.new_page(viewport={"width": 390, "height": 844})
